@@ -1,5 +1,16 @@
 #!/bin/bash
 
+#------------------------------------------------------------
+# Author: Karen Ng
+# This script 
+# * reads in airline csv data files 
+# * finds the column that corresponds to delay time
+# * cut the column then count the frequencies of a certain delay time
+# * returns frequency count in files named 1.txt 2.txt etc. 
+# * the frequency count files still has header and NA values mixed inside
+# * have to use R or other language to descard those 
+#------------------------------------------------------------
+
 shopt -s nullglob
 dir="./data_subset"
 out_dir="./freq_count_data"
@@ -24,5 +35,5 @@ do
 		fi
 	done
 
-	time cut -d',' -f${col} ${files[$j]} | sort -n | uniq -c > ${j}.txt 
+	cut -d',' -f${col} ${files[$j]} | sort -n | uniq -c > ${j}.txt 
 done
