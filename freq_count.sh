@@ -9,10 +9,11 @@
 # * returns frequency count in files named 1.txt 2.txt etc. 
 # * the frequency count files still has header and NA values mixed inside
 # * have to use R or other language to discard those 
+# version 1: no growing arrays but have extra I/O 
 #---------------------------------------------------------------------------
 
 shopt -s nullglob
-dir="./data_subset"
+dir="./data"
 out_dir="./freq_count_data"
 # store all file names in a bash array
 #files=( "$dir"/* ) 
@@ -57,7 +58,6 @@ do
 
 done
 
-
 echo "starting to sort all the frequency to sorted_freq.txt"
 # output of (time)
 # real	3m14.067s
@@ -65,5 +65,8 @@ echo "starting to sort all the frequency to sorted_freq.txt"
 # sys	0m5.388s
 time cat freq_count.txt | sort -n | uniq -c > sorted_freq.txt 
 
-# unfortunately it seems like one must traverse through sorted_freq.txt
-# to remove the header / white space entries
+# remove header lines from sorted_freq.txt
+sed --in-place='.bak' -e '/ArrDelay/d' -e '/ARR_DEL15/d' sorted_freq.txt
+
+
+
