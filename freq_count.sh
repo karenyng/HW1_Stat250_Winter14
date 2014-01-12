@@ -12,9 +12,10 @@
 #---------------------------------------------------------------------------
 
 shopt -s nullglob
-dir="./data"
+dir="./data_subset"
 out_dir="./freq_count_data"
 # store all file names in a bash array
+#files=( "$dir"/* ) 
 files=( "$dir"/* ) 
 fileno=${#files[*]}
 
@@ -62,12 +63,7 @@ echo "starting to sort all the frequency to sorted_freq.txt"
 # real	3m14.067s
 # user	3m7.896s
 # sys	0m5.388s
-# note that sort and uniq treat 1.00 and 1 as different entries
-# not sure if the "remove duplicate" function in R can spot those as same
-# entry...
 time cat freq_count.txt | sort -n | uniq -c > sorted_freq.txt 
 
-# Overall runtime 
-# real	4m22.940s
-# user	4m6.412s
-# sys	0m11.068s
+# unfortunately it seems like one must traverse through sorted_freq.txt
+# to remove the header / white space entries
