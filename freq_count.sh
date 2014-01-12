@@ -56,10 +56,15 @@ do
 
 done
 
+
 echo "starting to sort all the frequency to sorted_freq.txt"
+# output of (time)
 # real	3m14.067s
 # user	3m7.896s
 # sys	0m5.388s
+# note that sort and uniq treat 1.00 and 1 as different entries
+# not sure if the "remove duplicate" function in R can spot those as same
+# entry...
 time cat freq_count.txt | sort -n | uniq -c > sorted_freq.txt 
 
 # Overall runtime 
