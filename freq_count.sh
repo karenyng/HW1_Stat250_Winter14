@@ -13,10 +13,9 @@
 #---------------------------------------------------------------------------
 
 shopt -s nullglob
-dir="./data"
+dir="./data_subset"
 out_dir="./freq_count_data"
 # store all file names in a bash array
-#files=( "$dir"/* ) 
 files=( "$dir"/* ) 
 fileno=${#files[*]}
 
@@ -67,6 +66,6 @@ time cat freq_count.txt | sort -n | uniq -c > sorted_freq.txt
 
 # remove header lines from sorted_freq.txt
 sed --in-place='.bak' -e '/ArrDelay/d' -e '/ARR_DEL15/d' sorted_freq.txt
-
+rm *.bak
 
 
