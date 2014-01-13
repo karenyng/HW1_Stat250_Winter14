@@ -38,6 +38,7 @@ do
 			# This is because some values in the monthly CSV contain commas
 			if [ $x == "\"ARR_DELAY\"" ]; then 
 				(( col += 2 ))
+
 			fi
 
 			break
@@ -62,7 +63,7 @@ echo "starting to sort all the frequency to sorted_freq.txt"
 # real	3m13.652s
 # user	3m8.072s
 # sys	0m5.248s
-time cat freq_count.txt | sort -n | uniq -c |\
+time cat freq_count.txt |  sed -E 's/([0-9]+).00/\1/g' | sort -n | uniq -c |\
 	sed -e '/ArrDelay/d' -e '/ARR_DEL15/d' > sorted_freq.txt 
 
 

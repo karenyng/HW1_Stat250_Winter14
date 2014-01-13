@@ -17,6 +17,7 @@ t.mean <- sum(DF[['freq']] * ( DF[['delay']] / w.total), na.rm = TRUE)
 print(t.mean)
 
 # have to find duplicate entries and combine them 
-# compute the median 
-# t.median  <- floor(w.total/2) 
+# or have to do something more complicated to compute the median 
+median.index  <- floor(w.total/2) 
+
  
