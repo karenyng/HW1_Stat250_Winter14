@@ -13,7 +13,7 @@
 #---------------------------------------------------------------------------
 
 shopt -s nullglob
-dir="./data"
+dir="./data_subset"
 out_dir="./freq_count_data"
 # store all file names in a bash array
 files=( "$dir"/* ) 
@@ -62,7 +62,7 @@ echo "starting to sort all the frequency to sorted_freq.txt"
 # real	3m13.652s
 # user	3m8.072s
 # sys	0m5.248s
-time cat freq_count.txt | sort -n | uniq -c |\
+time cat freq_count.txt |\ sort -n | uniq -c |\
 	sed -e '/ArrDelay/d' -e '/ARR_DEL15/d' > sorted_freq.txt 
 
 
