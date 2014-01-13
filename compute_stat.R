@@ -5,14 +5,18 @@
 #---------------------------------------------------------------------
 
 col.names <- c('freq', 'delay')
+print("reading sorted frequency table")
 DF <- read.table("sorted_freq.txt", col.names = col.names, fill = TRUE)
-w.total <- sum(DF[['freq']])  
+print("computing total frequencies")
+w.total <- sum(DF[['freq']], na.rm = TRUE)  
 print(w.total)
 
 # compute the mean 
-t.mean <- sum(DF[['freq']] * ( DF[['delay']] / w.total))
+print("computing mean")
+t.mean <- sum(DF[['freq']] * ( DF[['delay']] / w.total), na.rm = TRUE)
+print(t.mean)
 
 # have to find duplicate entries and combine them 
 # compute the median 
-t.median <- floor(w.total/2) 
+# t.median  <- floor(w.total/2) 
  
