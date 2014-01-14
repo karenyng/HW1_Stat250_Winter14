@@ -9,22 +9,26 @@
 # * returns frequency count in files named 1.txt 2.txt etc. 
 # * the frequency count files still has header and NA values mixed inside
 # * have to use R or other language to discard those 
-# version 1: no growing arrays but have extra I/O 
+# version 1: no growing arrays but have slow I/O 
 #---------------------------------------------------------------------------
 
 shopt -s nullglob
-dir="./data"
+dir="./new_data"
 out_dir="./freq_count_data"
 # store all file names in a bash array
 files=( "$dir"/* ) 
 fileno=${#files[*]}
 
+# loop through the files one by one
 for ((j=0; j < ${fileno}; j++));
 do 
+	# look at the header, split them by "," 
+	# store in array
 	arr=($(head -1 ${files[$j]} | tr "," "\n"))
 	arrLen=${#arr[*]}
 	col=-99
 
+	# loop through array of headers and count which column it is in  
 	for ((i=0; i < ${arrLen}; i++)); 
 	do 
 		x=${arr[$i]}
@@ -63,6 +67,14 @@ echo "starting to sort all the frequency to sorted_freq.txt"
 # real	3m13.652s
 # user	3m8.072s
 # sys	0m5.248s
+# pipe the content of frequency count to sed 
+# use sed to remove the trailing decimal places for some delay time entries
+# sort them
+# find unique counts 
+# remove header 
+# then output to a text file 
+# possible time improvement - call this script from R 
+# have R fetch the shell output directly
 time cat freq_count.txt |  sed -E 's/([0-9]+).00/\1/g' | sort -n | uniq -c |\
 	sed -e '/ArrDelay/d' -e '/ARR_DEL15/d' > sorted_freq.txt 
 

@@ -7,17 +7,33 @@
 col.names <- c('freq', 'delay')
 print("reading sorted frequency table")
 DF <- read.table("sorted_freq.txt", col.names = col.names, fill = TRUE)
+DF <- na.omit(DF)
+
 print("computing total frequencies")
-w.total <- sum(DF[['freq']], na.rm = TRUE)  
+w.total <- sum(DF[['freq']])  
 print(w.total)
 
-# compute the mean 
 print("computing mean")
 t.mean <- sum(DF[['freq']] * ( DF[['delay']] / w.total), na.rm = TRUE)
-print(t.mean)
 
-# have to find duplicate entries and combine them 
-# or have to do something more complicated to compute the median 
-median.index  <- floor(w.total/2) 
+print("computing median")
+medianFreqCount <- floor(w.total/2) 
+i <- 1
+Sum <- DF[['freq']][1]
+while( Sum < medianFreqCount) { 
+  i <- i + 1 
+  # this vectorized operation 
+  Sum <- sum(DF[['freq']][1:i], na.rm = TRUE)
+  # is faster than 
+  #if ( !is.na(DF[['freq']][i]) ) {
+  #  Sum <- Sum + DF[['freq']][i] 
+  #}
+}
+t.median <- DF[['delay']][i]
 
+# after reading Jook Cook 's entry on computation of std. dev
+# I decide to go with the direct method because this can be 
+# written entirely in vectorized form
+std.dev <- sum(DF[['freq']] * (DF[['delay']] - t.mean)^2 / (w.total-1) )  
+print(std.dev)
  
