@@ -9,7 +9,8 @@ run <- function(){
   print("computing and reading in sorted frequency table from SHELL")
   print("this takes ~3 min for a single core with clockspeed ~3.2 GHz")
   # call the shell script for cutting columns and doing frequency count 
-  DF <- read.table(pipe("./freq_count.sh"), col.names = col.names, fill = TRUE)
+  DF <- read.table(pipe("./freq_count.sh"), col.names = col.names, 
+                   fill = TRUE)
   DF <- na.omit(DF)
 
   print("computing total frequencies")
@@ -19,12 +20,11 @@ run <- function(){
   t.mean <- sum(DF[['freq']] * ( DF[['delay']] / w.total), na.rm = TRUE)
 
   print("computing median")
-  medianFreqCount <- floor(w.total/2) 
   i <- 1
-  Sum <- DF[['freq']][1]
-
-  # sorry don't know better than to write a loop...
-  while( Sum < medianFreqCount) { 
+  Sum <- DF[['freq']][i]
+  medianFreqCount <- floor(w.total / 2) 
+  ## sorry don't know better than to write a loop...
+  while(Sum < medianFreqCount) { 
     i <- i + 1 
     # this vectorized operation 
     Sum <- sum(DF[['freq']][1:i], na.rm = TRUE)
@@ -33,8 +33,8 @@ run <- function(){
     ##   Sum <- Sum + DF[['freq']][i] 
     ## }
   }
-  # check for corner case:  
-  # or else there the median will may be off  
+  ## check for corner case:  
+  ## or else there the median will may be off  
   if( Sum == medianFreqCount &&  w.total %% 2 == 0){
     # print("going through special case")
     t.median <- (DF[['delay']][i] + DF[['delay']][i+1])/2   

@@ -14,7 +14,6 @@
 
 shopt -s nullglob
 dir="./data"
-out_dir="./freq_count_data"
 # store all file names in a bash array
 files=( "$dir"/* ) 
 fileno=${#files[*]}
@@ -66,10 +65,9 @@ done
 # use sed to remove the trailing decimal places for some delay time entries
 # sort them then find unique counts 
 # remove header --- could have just used "grep -v " 
-cat freq_count.txt | sed -E 's/([0-9]+)\.00/\1/g' |\ 
+cat freq_count.txt | sed -E 's/([0-9]+)\.00/\1/g' |\
 	sort -n | uniq -c |\
-   	sed -e '/ArrDelay/d' -e '/ARR_DEL15/d' |\
+	sed -e '/ArrDelay/d' -e '/ARR_DEL15/d' 
 
 # can output to a text file to check values 
 #> sorted_freq.txt
-
