@@ -13,7 +13,7 @@
 #---------------------------------------------------------------------------
 
 shopt -s nullglob
-dir="./data_subset"
+dir="./data"
 out_dir="./freq_count_data"
 # store all file names in a bash array
 files=( "$dir"/* ) 
