@@ -13,7 +13,7 @@
 #---------------------------------------------------------------------------
 
 shopt -s nullglob
-dir="./new_data"
+dir="./data_subset"
 out_dir="./freq_count_data"
 # store all file names in a bash array
 files=( "$dir"/* ) 
@@ -42,7 +42,6 @@ do
 			# This is because some values in the monthly CSV contain commas
 			if [ $x == "\"ARR_DELAY\"" ]; then 
 				(( col += 2 ))
-
 			fi
 
 			break
@@ -71,12 +70,14 @@ echo "starting to sort all the frequency to sorted_freq.txt"
 # use sed to remove the trailing decimal places for some delay time entries
 # sort them
 # find unique counts 
-# remove header 
+# remove header --- could have just used "grep -v "  
 # then output to a text file 
 # possible time improvement - call this script from R 
 # have R fetch the shell output directly
-time cat freq_count.txt |  sed -E 's/([0-9]+).00/\1/g' | sort -n | uniq -c |\
-	sed -e '/ArrDelay/d' -e '/ARR_DEL15/d' > sorted_freq.txt 
+time cat freq_count.txt | sort -n | uniq -c |\
+   	sed -e '/ArrDelay/d'  > sorted_freq1.txt
 
-
+time cat freq_count.txt | sort -n | uniq -c |\
+   	sed -e '/ArrDelay/d' -e '/ARR_DEL15/d' |\
+	sed -E 's/([0-9]+)\.00/\1/g' > sorted_freq.txt
 
