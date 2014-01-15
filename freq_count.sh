@@ -66,10 +66,11 @@ done
 # use sed to remove the trailing decimal places for some delay time entries
 # sort them
 # find unique counts 
-# remove header --- could have just used "grep -v "  
-cat freq_count.txt | sort -n | uniq -c |\
+# remove header --- could have just used "grep -v " 
+cat freq_count.txt | sed -E 's/([0-9]+)\.00/\1/g' |\ 
+	sort -n |\
+	uniq -c |\
    	sed -e '/ArrDelay/d' -e '/ARR_DEL15/d' |\
-	sed -E 's/([0-9]+)\.00/\1/g' 
 
 # can output to a text file to check values 
 #> sorted_freq.txt
