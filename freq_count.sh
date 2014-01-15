@@ -13,7 +13,7 @@
 #---------------------------------------------------------------------------
 
 shopt -s nullglob
-dir="./new_data"
+dir="./data_subset"
 out_dir="./freq_count_data"
 # store all file names in a bash array
 files=( "$dir"/* ) 
@@ -48,7 +48,7 @@ do
 		fi
 	done
 
-	echo "Writing the file-$j delay time to freq_count.txt"
+	#echo "Writing the file-$j delay time to freq_count.txt"
 	# store the frequency count of all the csv files in one single file
 	# possible time improvement: 
 	# use an array to hold these instead of writing it to a file first 
@@ -61,7 +61,7 @@ do
 
 done
 
-echo "starting to sort all the frequency to sorted_freq.txt"
+#echo "starting to sort all the frequency to sorted_freq.txt"
 # output of (time)
 # real	3m13.652s
 # user	3m8.072s
@@ -74,7 +74,7 @@ echo "starting to sort all the frequency to sorted_freq.txt"
 # then output to a text file 
 # possible time improvement - call this script from R 
 # have R fetch the shell output directly
-time cat freq_count.txt | sort -n | uniq -c |\
+cat freq_count.txt | sort -n | uniq -c |\
    	sed -e '/ArrDelay/d' -e '/ARR_DEL15/d' |\
-	sed -E 's/([0-9]+)\.00/\1/g' > sorted_freq.txt
+	sed -E 's/([0-9]+)\.00/\1/g' #> sorted_freq.txt
 
