@@ -5,7 +5,7 @@
 #---------------------------------------------------------------------
 
 # call the shell script for cutting columns and doing frequency count 
-#system("freq_count.sh")
+data = system("freq_count.sh", intern = TRUE)
 
 col.names <- c('freq', 'delay')
 print("reading sorted frequency table")
