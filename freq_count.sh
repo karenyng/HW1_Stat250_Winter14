@@ -13,7 +13,7 @@
 #---------------------------------------------------------------------------
 
 shopt -s nullglob
-dir="./data_subset"
+dir="./data"
 # store all file names in a bash array
 files=( "$dir"/*.csv ) 
 fileno=${#files[*]}

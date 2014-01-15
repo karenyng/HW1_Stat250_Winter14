@@ -10,7 +10,13 @@ run <- function(){
         from bash script")
   # call the shell script for cutting columns and doing frequency count 
   DF <- try(read.table(pipe("./freq_count.sh"), col.names = col.names, 
-                   fill = TRUE)) 
+                            fill = TRUE), silent=TRUE)
+  if (class(DF) == "try-error"){
+    print("ERROR: failed to read in $PWD/data/*.csv") 
+    print("USAGE: place data in $PWD/data/*.csv for this script to work")
+    q("no", 1, FALSE)
+  }
+  # REMOVE NAN!!! 
   DF <- na.omit(DF)
 
   print("compute_stat.R: this takes ~8 min for a single core
