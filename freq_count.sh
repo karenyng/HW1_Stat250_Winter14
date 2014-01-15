@@ -13,16 +13,24 @@
 #---------------------------------------------------------------------------
 
 shopt -s nullglob
-dir="./data"
+dir="./data_subset"
 # store all file names in a bash array
-files=( "$dir"/* ) 
+files=( "$dir"/*.csv ) 
 fileno=${#files[*]}
+
+# check for csv input error
+if [ ${fileno} -eq 0 ]; then
+	echo "--------SHELL SCRIPT ERROR-----------------------------"
+	echo "ERROR: no suitable *.csv file found in $PWD/data" 
+	echo "For this script to work, put *.csv files in $PWD/data" 
+	echo "-------------------------------------------------------"
+	exit 0;
+fi
 
 # loop through the files one by one
 for ((j=0; j < ${fileno}; j++));
 do 
-	# look at the header, split them by "," 
-	# store in array
+	# look at the header, split them by "," then store in array
 	arr=($(head -1 ${files[$j]} | tr "," "\n"))
 	arrLen=${#arr[*]}
 	col=-99
@@ -60,11 +68,10 @@ do
 
 done
 
-#echo "starting to sort all the frequency to sorted_freq.txt"
 # pipe the content of frequency count to sed 
 # use sed to remove the trailing decimal places for some delay time entries
 # sort them then find unique counts 
-# remove header --- could have just used "grep -v " 
+# remove header --- could have just used grep -v  
 cat freq_count.txt | sed -E 's/([0-9]+)\.00/\1/g' |\
 	sort -n | uniq -c |\
 	sed -e '/ArrDelay/d' -e '/ARR_DEL15/d' 

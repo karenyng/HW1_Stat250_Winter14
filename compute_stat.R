@@ -6,20 +6,22 @@
 
 run <- function(){
   col.names <- c('freq', 'delay')
-  print("computing and reading in sorted frequency table from SHELL")
-  print("this takes ~3 min for a single core with clockspeed ~3.2 GHz")
+  print("compute_stat.R: computing and reading in sorted frequency table 
+        from bash script")
   # call the shell script for cutting columns and doing frequency count 
-  DF <- read.table(pipe("./freq_count.sh"), col.names = col.names, 
-                   fill = TRUE)
+  DF <- try(read.table(pipe("./freq_count.sh"), col.names = col.names, 
+                   fill = TRUE)) 
   DF <- na.omit(DF)
 
-  print("computing total frequencies")
+  print("compute_stat.R: this takes ~8 min for a single core
+        with clockspeed ~3.2 GHz")
+  print("compute_stat.R: computing total frequencies")
   w.total <- sum(DF[['freq']])  
 
-  print("computing mean")
+  print("compute_stat.R: computing mean")
   t.mean <- sum(DF[['freq']] * ( DF[['delay']] / w.total), na.rm = TRUE)
 
-  print("computing median")
+  print("compute_stat.R: computing median")
   i <- 1
   Sum <- DF[['freq']][i]
   medianFreqCount <- floor(w.total / 2) 
