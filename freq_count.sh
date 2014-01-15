@@ -64,8 +64,7 @@ done
 #echo "starting to sort all the frequency to sorted_freq.txt"
 # pipe the content of frequency count to sed 
 # use sed to remove the trailing decimal places for some delay time entries
-# sort them
-# find unique counts 
+# sort them then find unique counts 
 # remove header --- could have just used "grep -v " 
 cat freq_count.txt | sed -E 's/([0-9]+)\.00/\1/g' |\ 
 	sort -n | uniq -c |\
