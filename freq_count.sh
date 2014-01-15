@@ -62,19 +62,15 @@ do
 done
 
 #echo "starting to sort all the frequency to sorted_freq.txt"
-# output of (time)
-# real	3m13.652s
-# user	3m8.072s
-# sys	0m5.248s
 # pipe the content of frequency count to sed 
 # use sed to remove the trailing decimal places for some delay time entries
 # sort them
 # find unique counts 
 # remove header --- could have just used "grep -v "  
-# then output to a text file 
-# possible time improvement - call this script from R 
-# have R fetch the shell output directly
 cat freq_count.txt | sort -n | uniq -c |\
    	sed -e '/ArrDelay/d' -e '/ARR_DEL15/d' |\
-	sed -E 's/([0-9]+)\.00/\1/g' #> sorted_freq.txt
+	sed -E 's/([0-9]+)\.00/\1/g' 
+
+# can output to a text file to check values 
+#> sorted_freq.txt
 
