@@ -2,6 +2,8 @@ HW1_Stat250_Winter14
 ====================
 
 benchmarking different approaches to computing statistics of large csv files
+for details see:
+http://nbviewer.ipython.org/github/karenyng/HW1_Stat250_Winter14/blob/master/hw1.ipynb?create=1
 
 Dependency:
 ----------
