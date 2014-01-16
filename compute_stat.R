@@ -60,10 +60,10 @@ run <- function(){
 }
  
 timeTaken <- system.time(results <- run())
-CPUtime <- timeTaken[["sys.child"]]
+#CPUtime <- timeTaken[["sys.child"]]
 files <- c("compute_stat.R", "freq_count.sh") 
 shell.command <- 'Rscript compute_stat.R'
 
-RESULTS1 <- list(time = CPUtime, results = results, system = Sys.info(),
+RESULTS1 <- list(time = timeTaken, results = results, system = Sys.info(),
      session = sessionInfo(), files = files, run.command = shell.command) 
 save(RESULTS1, file="results1.rda")
