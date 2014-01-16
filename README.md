@@ -3,8 +3,8 @@ HW1_Stat250_Winter14
 
 benchmarking different approaches to computing statistics of large csv files
 
-Dependency
-____
+Dependency:
+_____
 * Put data in a directory ${PATH TO GIT DIRECTORY}/data 
 
 To run:
