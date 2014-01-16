@@ -61,9 +61,12 @@ run <- function(){
  
 timeTaken <- system.time(results <- run())
 #CPUtime <- timeTaken[["sys.child"]]
-files <- c("compute_stat.R", "freq_count.sh") 
+code <- c("compute_stat.R", "freq_count.sh") 
 shell.command <- 'Rscript compute_stat.R'
+csvfiles <- c("uncompressed csv of
+              http://eeyore.ucdavis.edu/stat250/Data/Airlines/Delays1987_2013.tar.bz2")
 
 RESULTS1 <- list(time = timeTaken, results = results, system = Sys.info(),
-     session = sessionInfo(), files = files, run.command = shell.command) 
+     session = sessionInfo(), files = csvfiles, run.command =
+     shell.command, code = code) 
 save(RESULTS1, file="results1.rda")
