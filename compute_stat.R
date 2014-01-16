@@ -6,8 +6,8 @@
 
 run <- function(){
   col.names <- c('freq', 'delay')
-  print("compute_stat.R: computing and reading in sorted frequency table 
-        from bash script")
+  print("compute_stat.R: ")
+  print("computing and reading in sorted frequency table from bash script")
   # call the shell script for cutting columns and doing frequency count 
   DF <- try(read.table(pipe("./freq_count.sh"), col.names = col.names, 
                             fill = TRUE), silent=TRUE)
@@ -19,8 +19,8 @@ run <- function(){
   # REMOVE NAN!!! 
   DF <- na.omit(DF)
 
-  print("compute_stat.R: this takes ~8 min for a single core
-        with clockspeed ~3.2 GHz")
+  print("compute_stat.R")
+  print("this takes ~8 min for a single core with clockspeed ~3.2 GHz")
   print("compute_stat.R: computing total frequencies")
   w.total <- sum(DF[['freq']])  
 
@@ -62,8 +62,8 @@ run <- function(){
 timeTaken <- system.time(results <- run())
 CPUtime <- timeTaken[["sys.child"]]
 files <- c("compute_stat.R", "freq_count.sh") 
-run.command <- 'source ("compute_stat.R")'
+shell.command <- 'Rscript compute_stat.R'
 
 RESULTS1 <- list(time = CPUtime, results = results, system = Sys.info(),
-     session = sessionInfo(), files = files, run.command = run.command) 
+     session = sessionInfo(), files = files, run.command = shell.command) 
 save(RESULTS1, file="results1.rda")
