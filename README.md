@@ -18,7 +18,7 @@ To run:
 Returns:
 ----
 Method 1: 
-* results1.rda ---- All results are in the R object results1.rd for all 80
+* results1.rda ---- All results are in the R object results1.rd for all 81
   csv files uncompressed from
   http://eeyore.ucdavis.edu/stat250/Data/Airlines/Delays1987_2013.tar.bz2 
 * freq_count.txt ---- by-product of my laziness
@@ -37,3 +37,23 @@ Machine specification:
   * Linux Mint 15 Olivia (GNU/Linux 3.8.0-19-generic x86_64)
   * R version 3.0.2 (2013-09-25) -- "Frisbee Sailing"
   * Python v. 2.7.4, numpy v.1.7.1, pandas v.0.10.1  
+
+Wallclock time 
+-----
+* Method 1: ~5.4 mins 
+* Method 2: ~3.3 mins
+
+Results
+----
+Method 1 agrees with Method 2 up to 6 decimal place
+
+
+Method 2: 
+
+mean = 6.56650421703
+
+median = 0.0
+
+std. dev. = 31.5563262623
+
+
