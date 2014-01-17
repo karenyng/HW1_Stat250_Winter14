@@ -12,14 +12,19 @@ Dependency:
 
 To run:
 -----
-* $Rscript ${PATH TO GIT DIRECTORY}/compute_stat.R 
+* Method 1 : $Rscript ${PATH TO GIT DIRECTORY}/compute_stat.R 
+* Method 2 : $./compute_stat.py 
 
 Returns:
 ----
+Method 1: 
 * results1.rda ---- All results are in the R object results1.rd for all 80
   csv files uncompressed from
   http://eeyore.ucdavis.edu/stat250/Data/Airlines/Delays1987_2013.tar.bz2 
 * freq_count.txt ---- by-product of my laziness
+
+Method 2: 
+* results2.txt
 
 Machine specification: 
 ---------------------
@@ -31,4 +36,4 @@ Machine specification:
   * Motherboard: Asus Z87-Deluxe DDR3 1600 LGA 1150 
   * Linux Mint 15 Olivia (GNU/Linux 3.8.0-19-generic x86_64)
   * R version 3.0.2 (2013-09-25) -- "Frisbee Sailing"
-
+  * Python v. 2.7.4, numpy v.1.7.1, pandas v.0.10.1  

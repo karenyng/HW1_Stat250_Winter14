@@ -17,12 +17,15 @@ run <- function(){
     q("no", 1, FALSE)
   }
   # REMOVE NAN!!! 
-  DF <- na.omit(DF)
+  #DF <- na.omit(DF)
+  DF <- DF[complete.cases(DF),]
 
   print("compute_stat.R")
-  print("this takes ~8 min for a single core with clockspeed ~3.2 GHz")
+  print("this takes ~5 min for a single core with clockspeed ~3.2 GHz")
   print("compute_stat.R: computing total frequencies")
   w.total <- sum(DF[['freq']])  
+  print("total number of valid total frequency count")
+  print(w.total)
 
   print("compute_stat.R: computing mean")
   t.mean <- sum(DF[['freq']] * ( DF[['delay']] / w.total), na.rm = TRUE)
@@ -43,6 +46,7 @@ run <- function(){
   }
   ## check for corner case:  
   ## or else there the median will may be off  
+  print("compute_stat.R: computing standard dev.")
   if( Sum == medianFreqCount &&  w.total %% 2 == 0){
     # print("going through special case")
     t.median <- (DF[['delay']][i] + DF[['delay']][i+1])/2   
