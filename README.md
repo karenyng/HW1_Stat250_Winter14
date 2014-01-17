@@ -45,7 +45,7 @@ Wallclock time
 
 Results
 ----
-Method 1 agrees with Method 2 up to 6 decimal place
+Method 1 agrees with Method 2 up to 6 decimal places
 
 
 Method 2: 
