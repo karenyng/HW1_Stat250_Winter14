@@ -69,8 +69,16 @@ code <- c("compute_stat.R", "freq_count.sh")
 shell.command <- 'Rscript compute_stat.R'
 csvfiles <- c("uncompressed csv of
               http://eeyore.ucdavis.edu/stat250/Data/Airlines/Delays1987_2013.tar.bz2")
+machine.specs <- c(RAM = 
+                   "Corsair Vengeance 2x8GB DDR3 1600 MHz Desktop Memory",
+                  CPU = 
+                 "Intel(R) Core(TM) i7-4770K CPU @ 3.50GHz Quad Core",
+                  Motherboard = 
+                 "Motherboard: Asus Z87-Deluxe DDR3 1600 LGA 1150",
+                 HD = 
+                 "Western Digital 2TB unknown RPM")
 
 RESULTS1 <- list(time = timeTaken, results = results, system = Sys.info(),
      session = sessionInfo(), files = csvfiles, run.command =
-     shell.command, code = code) 
+     shell.command, code = code, machine.specs = machine.specs) 
 save(RESULTS1, file="results1.rda")
