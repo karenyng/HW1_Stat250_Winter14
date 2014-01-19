@@ -45,7 +45,7 @@ Machine specification:
 Wallclock time 
 -----
 * Method 1: ~5.4 mins 
-* Method 2: ~3.3 mins
+* Method 2: ~3.1 mins
 
 Results
 ----
