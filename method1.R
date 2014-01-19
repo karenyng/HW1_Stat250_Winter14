@@ -6,8 +6,9 @@
 
 run <- function(){
   col.names <- c('freq', 'delay')
-  print("compute_stat.R: ")
+  print("First method: compute_stat.R: ")
   print("computing and reading in sorted frequency table from bash script")
+  print("This takes ~5 mins for a 3.5 GHz machine with sufficient RAM")
   # call the shell script for cutting columns and doing frequency count 
   DF <- try(read.table(pipe("./freq_count.sh"), col.names = col.names, 
                             fill = TRUE), silent=TRUE)
@@ -17,11 +18,9 @@ run <- function(){
     q("no", 1, FALSE)
   }
   # REMOVE NAN!!! 
-  #DF <- na.omit(DF)
-  DF <- DF[complete.cases(DF),]
+  DF <- na.omit(DF)
 
   print("compute_stat.R")
-  print("this takes ~5 min for a single core with clockspeed ~3.2 GHz")
   print("compute_stat.R: computing total frequencies")
   w.total <- sum(DF[['freq']])  
   print("total number of valid total frequency count")
@@ -58,27 +57,10 @@ run <- function(){
   # I decide to go with the (two-pass) direct method  because this can be 
   # written entirely in vectorized form
   std.dev <- sqrt(sum(DF[['freq']] * (DF[['delay']] - t.mean) ^ 2 / (w.total-1))) 
-  results <- c(t.mean, t.median, std.dev)
+  results1 <- c(t.mean, t.median, std.dev)
   #print(results)
-  results
+  results1
 }
- 
-timeTaken <- system.time(results <- run())
-#CPUtime <- timeTaken[["sys.child"]]
-code <- c("compute_stat.R", "freq_count.sh") 
-shell.command <- 'Rscript compute_stat.R'
-csvfiles <- c("uncompressed csv of
-              http://eeyore.ucdavis.edu/stat250/Data/Airlines/Delays1987_2013.tar.bz2")
-machine.specs <- c(RAM = 
-                   "Corsair Vengeance 2x8GB DDR3 1600 MHz Desktop Memory",
-                  CPU = 
-                 "Intel(R) Core(TM) i7-4770K CPU @ 3.50GHz Quad Core",
-                  Motherboard = 
-                 "Motherboard: Asus Z87-Deluxe DDR3 1600 LGA 1150",
-                 HD = 
-                 "Western Digital 2TB unknown RPM")
 
-RESULTS1 <- list(time = timeTaken, results = results, system = Sys.info(),
-     session = sessionInfo(), files = csvfiles, run.command =
-     shell.command, code = code, machine.specs = machine.specs) 
-save(RESULTS1, file="results1.rda")
+time.method1 <- system.time(results1 <- run())
+save(results1, time.method1, file="results1.rda")

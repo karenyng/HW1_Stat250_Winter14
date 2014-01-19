@@ -7,13 +7,14 @@ http://nbviewer.ipython.org/github/karenyng/HW1_Stat250_Winter14/blob/master/hw1
 
 Dependency:
 ----------
-
 * Put data (.csv files NOT .csv.bz files) in a directory ${PATH TO GIT DIRECTORY}/data 
 
 To run:
 -----
-* Method 1 : $Rscript ${PATH TO GIT DIRECTORY}/compute_stat.R 
-* Method 2 : $./compute_stat.py 
+* Method 1 : $Rscript ${PATH TO GIT DIRECTORY}/method1.R 
+* Method 2 : $Rscript ${PATH TO GIT DIRECTORY}/method2.R 
+
+* All methods together: $Rscript ${PATH TO GIT DIRECTORY}/collect_results.R
 
 Returns:
 ----
@@ -24,6 +25,7 @@ Method 1:
 * freq_count.txt ---- by-product of my laziness
 
 Method 2: 
+* results2.rda
 * results2.txt
 
 Machine specification: 
