@@ -3,7 +3,7 @@
 import pandas as pd
 import numpy as np
 
-data_path = "../HW1_Stat250_W14/data/"
+data_path = "./data/"
 
 # First read in the data from 1987 to 2007
 year = [ str(i) for i in range(1987,2008) ]
