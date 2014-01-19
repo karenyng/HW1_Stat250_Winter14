@@ -14,7 +14,6 @@ To run:
 * Method 1 : $Rscript ${PATH TO GIT DIRECTORY}/method1.R 
 * Method 2 : $Rscript ${PATH TO GIT DIRECTORY}/method2.R 
 
-* All methods together: $Rscript ${PATH TO GIT DIRECTORY}/collect_results.R
 
 Returns:
 ----
