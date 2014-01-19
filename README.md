@@ -5,6 +5,8 @@ benchmarking different approaches to computing statistics of large csv files
 for details see:
 http://nbviewer.ipython.org/github/karenyng/HW1_Stat250_Winter14/blob/master/hw1.ipynb?create=1
 
+Or in R, load "results.rda" 
+
 Dependency:
 ----------
 * Put data (.csv files NOT .csv.bz files) in a directory ${PATH TO GIT DIRECTORY}/data 
