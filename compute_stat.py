@@ -45,9 +45,9 @@ delay = pd.DataFrame(delay)
 print 'total number of valid lines = {0}'.format(delay.dropna().shape[0])
 
 # note that pandas ignores nans automatically while computing stats
-print 'mean = {0} \n'.format(delay[0].mean()) +\
-    'median = {0} \n'.format(delay[0].median()) +\
-    'std. dev. = {0}\n'.format(delay[0].std())
+#print 'mean = {0} \n'.format(delay[0].mean()) +\
+#    'median = {0} \n'.format(delay[0].median()) +\
+#    'std. dev. = {0}\n'.format(delay[0].std())
 
 print 'saving to results2.txt'
 f = open('results2.txt', 'w')
