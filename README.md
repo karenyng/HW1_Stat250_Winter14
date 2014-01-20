@@ -4,7 +4,7 @@ HW1_Stat250_Winter14
 benchmarking different approaches to computing statistics of large csv files.
 
 For details see:
-http://nbviewer.ipython.org/github/karenyng/HW1_Stat250_Winter14/blob/master/hw1.ipynb?create=1
+http://nbviewer.ipython.org/github/karenyng/HW1_Stat250_Winter14/blob/master/writeup/hw1.ipynb?create=1
 
 Or in R, load "results.rda" 
 
@@ -34,7 +34,7 @@ Machine specification:
 ---------------------
   * Corsair Vengeance 2x8GB DDR3 1600 MHz Desktop Memory, 
   * Intel(R) Core(TM) i7-4770K CPU @ 3.50GHz,
-  http://ark.intel.com/products/75123
+http://www.cpubenchmark.net/cpu.php?cpu=Intel+Core+i7-4770K+%40+3.50GHz&id=1919
   * GeForce GTX 770 SuperClocked
   * Samsung 840 Pro 256 GB SSD
   * Motherboard: Asus Z87-Deluxe DDR3 1600 LGA 1150 
