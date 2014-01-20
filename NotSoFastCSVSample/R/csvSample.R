@@ -17,7 +17,7 @@ function(file, n, rows = sample(1:numRows, n),
   ans = .Call("R_csv_sample", file, rows)
 
   if(header & !is.null(colName))
-    getCol(file, colName)
+    getColNum(file, colName)
 
   names(ans) = rows
 
@@ -41,14 +41,15 @@ function(file, colName)
   csvHeader <- system(sprintf('head -1 %s | tr "," "\n"', file), intern = TRUE)
   for(i in 1:length(csvHeader))
   {
-    if(grepl(csvHeader[[i]], colName))
+    if(grepl(csvHeader[[i]], colName) & !grepl("^$", csvHeader[[i]]))
     {
       colNum <- i 
+      print(paste("found ", colName, " at column", colNum))
       break
     }
   }
   if(colNum == -99L)
-    stop(c(colName, "does not exist in the csv header")
+    stop(paste(colName, "does not exist in the csv header"))
 
   colNum
 }
