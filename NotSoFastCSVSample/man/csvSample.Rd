@@ -36,7 +36,7 @@ csvSample(file, n, rows = sample(1:numRows, n), numRows =
 A character vector containing the sampled lines.
 }
 \author{
-Duncan Temple Lang
+Duncan Temple Lang with bug contributions from Karen Ng
 }
 \seealso{
   \code{\link[base]{read.csv}}

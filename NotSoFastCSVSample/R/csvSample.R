@@ -15,11 +15,10 @@ function(file, n, rows = sample(1:numRows, n),
     rows = rows + 1L
 
   ans = .Call("R_csv_sample", file, rows)
+  names(ans) = rows
 
   if(header & !is.null(colName))
-    getColNum(file, colName)
-
-  names(ans) = rows
+    ans <- getCol(file, colName, ans)
 
   if(randomize)
     sample(ans)
@@ -41,10 +40,11 @@ function(file, colName)
   csvHeader <- system(sprintf('head -1 %s | tr "," "\n"', file), intern = TRUE)
   for(i in 1:length(csvHeader))
   {
-    if(grepl(csvHeader[[i]], colName) & !grepl("^$", csvHeader[[i]]))
+    if(csvHeader[[i]] == colName)
+    #if(grepl(csvHeader[[i]], colName) & !grepl("^$", csvHeader[[i]]))
     {
       colNum <- i 
-      print(paste("found ", colName, " at column", colNum))
+      #print(paste("found ", colName, " at column", colNum))
       break
     }
   }
@@ -57,5 +57,30 @@ function(file, colName)
 getCol = 
 function(file, colName, ans)
 {
-  colNum = getColNum(file, colName)
+  colNum <- getColNum(file, colName)  
+  ans <- extractCol(colNum, ans, colName) 
+}
+
+extractCol=
+function(colNum, ans, colName)
+# have not found time to write a fancy one that would match the double quotes 
+# in the csv intelligently
+# if there is time, should write one that compares consecutive elements 
+# in the split list to see if \" and \" has been split between two elements
+# then join them back together
+# ideally this should also be written in C for speed 
+{
+  splitAns <- strsplit(ans, ",")
+  if (colName == '\"ARR_DELAY\"') 
+    splitAns <- sapply(splitAns, "[", c(colNum+2L)) 
+  else if(colName == "ArrDelay")
+    splitAns <- sapply(splitAns, "[", c(colNum)) 
+  
+  splitAns <- gsub("^$","NaN", splitAns) 
+  splitAns <- gsub("\"([0-9]+)\"","\\1", splitAns) 
+
+  # replace all the invalid entries with NaN
+  splitAns <- as.integer(splitAns)
+  splitAns <- as.data.frame(splitAns)
+  splitAns <- na.omit(splitAns)
 }
