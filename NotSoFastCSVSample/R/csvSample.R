@@ -41,6 +41,7 @@ function(file, colName)
   for(i in 1:length(csvHeader))
   {
     if(csvHeader[[i]] == colName)
+    # not sure if this is the best way to do string comparison in R
     #if(grepl(csvHeader[[i]], colName) & !grepl("^$", csvHeader[[i]]))
     {
       colNum <- i 
@@ -68,7 +69,7 @@ function(colNum, ans, colName)
 # if there is time, should write one that compares consecutive elements 
 # in the split list to see if \" and \" has been split between two elements
 # then join them back together
-# ideally this should also be written in C for speed 
+# ideally this should also be written in C or C++ for speed 
 {
   splitAns <- strsplit(ans, ",")
   if (colName == '\"ARR_DELAY\"') 
@@ -76,11 +77,11 @@ function(colNum, ans, colName)
   else if(colName == "ArrDelay")
     splitAns <- sapply(splitAns, "[", c(colNum)) 
   
+  # replace all the invalid entries with NaN
   splitAns <- gsub("^$","NaN", splitAns) 
   splitAns <- gsub("\"([0-9]+)\"","\\1", splitAns) 
 
-  # replace all the invalid entries with NaN
   splitAns <- as.integer(splitAns)
-  splitAns <- as.data.frame(splitAns)
+  #splitAns <- as.data.frame(splitAns)
   splitAns <- na.omit(splitAns)
 }

@@ -206,7 +206,7 @@
 
     % Document level variables
     \title{hw1}
-    \date{January 19, 2014}
+    \date{January 22, 2014}
     \release{}
     \author{Unknown Author}
     \renewcommand{\releasename}{}
@@ -248,12 +248,14 @@ Written with an ipython notebook (v 1.1.0)
 
     
         \vspace{6pt}
-        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}25{]}:\hspace{4pt}}\\*
+        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}1{]}:\hspace{4pt}}\\*
         \vspace{-2.65\baselineskip}
         \begin{ColorVerbatim}
             \vspace{-0.7\baselineskip}
             \begin{Verbatim}[commandchars=\\\{\}]
 \PY{o}{\PYZpc{}}\PY{k}{autosave} \PY{l+m+mi}{60}
+\PY{o}{\PYZpc{}}\PY{k}{load\PYZus{}ext} \PY{n}{nbtoc}
+\PY{o}{\PYZpc{}}\PY{k}{nbtoc}
 \end{Verbatim}
 
             
@@ -283,13 +285,18 @@ Written with an ipython notebook (v 1.1.0)
 
             \end{InvisibleVerbatim}
             
+                \begin{InvisibleVerbatim}
+                \vspace{-0.5\baselineskip}
+            \end{InvisibleVerbatim}
+            
+                \begin{InvisibleVerbatim}
+                \vspace{-0.5\baselineskip}
+            \end{InvisibleVerbatim}
+            
         
     
-\part{
- Methods:
-}
-We benchmark different approaches for computing the statistics of
-airline delays between Jan 1987 through Sept 2012.
+\part{Methods}We benchmark different approaches for computing the statistics of
+airline delays between 1987 and 2012.
 
 Design considerations, due to the large size of the data, we have to :
 
@@ -316,7 +323,7 @@ Other possible consideration if this was made into a production code:
 \itemsep1pt\parskip0pt\parsep0pt
 \item
   extensibility
-\end{itemize}\part{1.1 Exact approach 1 :}\subsection{frequency table approach using the shell \& R (or item 5)}Pros:
+\end{itemize}\part{Exact approach 1}\subsection{frequency table approach using the shell \& R (or item 5)}Pros:
 
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
@@ -329,6 +336,9 @@ Other possible consideration if this was made into a production code:
   no fancy algorithms are needed
 \item
   good for prototyping which is what usually people do in industry
+\item
+  super cool that the shell can do so much stuff so fast with so little
+  code
 \end{itemize}
 
 Cons:
@@ -356,7 +366,7 @@ parallelizable way but I focus on getting an estimate of the answer from
 this first method
 
 I usually write code as functions and use OOP concepts but I don't have
-time for this.\section{1.2 Shell scripting part}Observation: there are two types of files with two different headers.
+time for this.\section{Shell scripting part}Observation: there are two types of files with two different headers.
 
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
@@ -389,7 +399,7 @@ Now I'm just manually comparing statistics of individual files / writing
 out fake data for testing.
 
 I really should have done a better job planning for unit tests
-\ldots{}\ldots{}\section{1.3 R part - computing the statistics}When I write in a scripting language, I usually
+\ldots{}\ldots{}\section{R part - computing the statistics}When I write in a scripting language, I usually
 
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
@@ -415,7 +425,9 @@ computing :
 \item
   all delay time are integers which simplifies that problem by a lot
 \item
-  precision requirement is lax (up to one minute)
+  precision requirement is lax (up to one minute - I will report the
+  answer with one or two more decimal places at most or else we are over
+  confident about the precision of the data)
 \end{itemize}
 
 Of course these stats are obtained after I have run them through my
@@ -443,18 +455,21 @@ numerical inaccuracies like overflow (when summing number), underflow
 we do not need more rigorous algorithms in the world for just computing
 the statistics of ArrDelay with the frequency table approach. If we
 compute the statistics with other methods, we may have to worry more,
-especially when computing the standard deviation.\subsubsection{Computing the mean:}danger of overflow of this naive formula???
+especially when computing the standard deviation.\subsubsection{Computing the mean:}danger of loss of accuracies of this naive formula???
 
 \[ \bar{t} = \frac{ \sum_i^n (t_i ~\omega_i)}{\omega_{total}}\]
 
 where $t_i$ denotes the delay time $\omega_i$ denotes the corresponding
-count for that $t_i$. Numerator may overflow if we are summing a bunch
-of numbers that are too largeAs a safety precaution I will compute the mean using
+count for that $t_i$. Numerator may overflow if we are just summing a
+bunch of positive numbers that are too large, but some of the numbers in
+the summation are negative.As a safety precaution I will compute the mean using
 
 \[ \bar{t} =  \sum_i^n \frac{(t_i ~\omega_i)}{\omega_{total}}\]
 
 Note $t_i, w_i \ll w_{total}$, by multiplying before dividing, there
-shouldn't be any underflow problems.\subsubsection{Computing the std. dev.:}After reading John Cook 's entry I decide to use an adapted version of
+shouldn't be any underflow problems. And also I am using the default R
+sum() method which uses partial sums so I think it should be accurate
+enough.\subsubsection{Computing the std. dev.:}After reading John Cook 's entry I decide to use an adapted version of
 the two-pass formula because
 
 \begin{itemize}
@@ -470,26 +485,34 @@ the two-pass formula because
 \end{itemize}
 
 \[s = \sqrt{\sum_i^n \frac{w_i}{w_{total}}(t_i - \bar{t})^2} \]\subsubsection{Computing the median:}I tested total frequency count is odd or even to avoid grabbing the
-wrong median.\section{How to call the code: \textgreater{}Rscript ./compute\_stat.R}\section{1.4 Results:}\begin{itemize}
-\itemsep1pt\parskip0pt\parsep0pt
-\item
-  mean = 6.(566504) min
-\item
-  median = 0.(00000) min
-\item
-  standard deviation = 31.(556326) min
-\end{itemize}
+wrong median.\section{How to call the code:}Create a directory in the git directory called data then move all the
+csv files inside the data directory\begin{quote}
+Rscript
+\end{quote}\section{Results of method 1 :}\begin{quote}
+mean = 6.(566504) min
+\end{quote}
+
+\begin{quote}
+median = 0.(00000) min
+\end{quote}
+
+\begin{quote}
+standard deviation = 31.(556326) min
+\end{quote}
 
 should probably just report up to 1 or 2 significant figure(s).\ldots{}\ldots{}eyeballing if answer make sense by plotting the
 frequency counts Maybe I should have made bar plots but I am just trying
 to quickly visualize this.
+
+Being able to visualize the results is a great strength of the frequency
+table approach
 
     % Make sure that atleast 4 lines are below the HR
     \needspace{4\baselineskip}
 
     
         \vspace{6pt}
-        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}2{]}:\hspace{4pt}}\\*
+        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}18{]}:\hspace{4pt}}\\*
         \vspace{-2.65\baselineskip}
         \begin{ColorVerbatim}
             \vspace{-0.7\baselineskip}
@@ -510,7 +533,7 @@ to quickly visualize this.
 
     
         \vspace{6pt}
-        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}3{]}:\hspace{4pt}}\\*
+        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}19{]}:\hspace{4pt}}\\*
         \vspace{-2.65\baselineskip}
         \begin{ColorVerbatim}
             \vspace{-0.7\baselineskip}
@@ -541,7 +564,7 @@ to quickly visualize this.
 
     
         \vspace{6pt}
-        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}34{]}:\hspace{4pt}}\\*
+        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}20{]}:\hspace{4pt}}\\*
         \vspace{-2.65\baselineskip}
         \begin{ColorVerbatim}
             \vspace{-0.7\baselineskip}
@@ -576,17 +599,17 @@ to quickly visualize this.
 
             % Add document contents.
             
-                \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-out-prompt}Out\hspace{4pt}{[}34{]}:\hspace{4pt}}\\*
+                \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-out-prompt}Out\hspace{4pt}{[}20{]}:\hspace{4pt}}\\*
                 \vspace{-2.55\baselineskip}\begin{InvisibleVerbatim}
                 \vspace{-0.5\baselineskip}
-\begin{alltt}<matplotlib.legend.Legend at 0x4e80410>\end{alltt}
+\begin{alltt}<matplotlib.legend.Legend at 0x3af1fd0>\end{alltt}
 
             \end{InvisibleVerbatim}
             
                 \begin{InvisibleVerbatim}
                 \vspace{-0.5\baselineskip}
     \begin{center}
-    \includegraphics[max size={\textwidth}{\textheight}]{hw1_files/hw1_31_1.png}
+    \includegraphics[max size={\textwidth}{\textheight}]{hw1_files/hw1_33_1.png}
     \par
     \end{center}
     
@@ -601,7 +624,7 @@ to quickly visualize this.
 
     
         \vspace{6pt}
-        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}35{]}:\hspace{4pt}}\\*
+        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}21{]}:\hspace{4pt}}\\*
         \vspace{-2.65\baselineskip}
         \begin{ColorVerbatim}
             \vspace{-0.7\baselineskip}
@@ -633,17 +656,17 @@ to quickly visualize this.
 
             % Add document contents.
             
-                \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-out-prompt}Out\hspace{4pt}{[}35{]}:\hspace{4pt}}\\*
+                \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-out-prompt}Out\hspace{4pt}{[}21{]}:\hspace{4pt}}\\*
                 \vspace{-2.55\baselineskip}\begin{InvisibleVerbatim}
                 \vspace{-0.5\baselineskip}
-\begin{alltt}<matplotlib.legend.Legend at 0x5183f10>\end{alltt}
+\begin{alltt}<matplotlib.legend.Legend at 0x41dd190>\end{alltt}
 
             \end{InvisibleVerbatim}
             
                 \begin{InvisibleVerbatim}
                 \vspace{-0.5\baselineskip}
     \begin{center}
-    \includegraphics[max size={\textwidth}{\textheight}]{hw1_files/hw1_32_1.png}
+    \includegraphics[max size={\textwidth}{\textheight}]{hw1_files/hw1_34_1.png}
     \par
     \end{center}
     
@@ -655,106 +678,51 @@ It makes sense that the mean is slightly positive which is explained by
 the longer tail on the positive end.
 
 It also makes sense that the median could be at zero, the positive tail
-is offset by the more dispersed peak on the negative end if you look at
-the truncated plot.
+is offset by the taller and fatter peak on the negative end if you look
+at the truncated plot.
 
-Standard deviation is also plausible given the long tails.\section{1.5 Computation time: \textasciitilde{}5 mins}This is probably not the fastest approach in terms of CPU time.
+Standard deviation is also plausible given the long tails.\section{Computation time: \textasciitilde{}5 mins}This is probably not the fastest approach in terms of CPU time.
 
 Possible improvement in the bash script: the bash script grabs the
 columns from different csv and write them all out to a big file before
 sorting then counting frequencies. I expect the I/O to hard disk to be
-one of the bigger bottlenecks.
+one of the bigger bottlenecks. Dynamic arrays in the shell can be used
+to remedy this but I am not familiar how bash handles the memory for
+growing array to comment on if it will not use up a lot of memory.
 
-Honestly, optimizing a 5-min code sounds like diminishing return to me.
-I have to quote my undergrad advisor that ``If you do not run the code a
-million times it is probably not worth optimizing, your time is more
-valuable than the machine time'' Of course for intellectual curiosity it
-is ok to optimize a code.\section{1.6 Memory usage:}Negligible amount swap was used as far as I am concerned
-\part{2 Exact Method 2: Python with Pandas and Numpy (calling compiled code
-from python)}
-\section{2.1 Background:}This implementation is probably the most straight forward with only around 47 lines.
+Also the computation of the frequency table is also a place for possible
+improvements. Currently I have sorted all the 500 MB of ArrDelay column
+data before using ``uniq'' to compute the frequency table. If we can
+implement a fast hashing method then we might be able to avoid holding
+all 500MB of data. Even though 500 MB data should not be a limiting
+factor for even laptop as old as 5 years old but if the data is bigger
+than this is not an extensible solution.\section{Memory usage:}Negligible amount of swap was used as far as I am concerned\part{Exact Method 2: Python with Pandas and Numpy (calling compiled code from
+python)}\section{Background:}This implementation is probably the most straight forward with only
+around 47 lines.
 
 Python pandas is a data analysis python package that imitates R syntax
 and it has a C backend highly optimized for speed. I took a quick look
 at the relevant source code on github. The relevant C / Cython code are
 scattered in mainly in
-https://github.com/pydata/pandas/tree/master/pandas and
-https://github.com/pydata/pandas/tree/master/pandas/src
+\url{https://github.com/pydata/pandas/tree/master/pandas} and
+\url{https://github.com/pydata/pandas/tree/master/pandas/src}
 
 The actual ``python'' implementation of the read.csv function looks like
-pure Python:
-https://github.com/pydata/pandas/blob/master/pandas/io/parsers.py BUT,
-it is naive to think the read.csv function is really written in python
-since it imported a bunch of libraries to replace original Python parts.
-For example the imported pandas.lib
-https://github.com/pydata/pandas/blob/master/pandas/lib.pyx seems to
-replace the python data variables such as integers, nans, infs with C
+it is mostly in Python:
+\url{https://github.com/pydata/pandas/blob/master/pandas/io/parsers.py}
+BUT, it is naive to think the read.csv function is really written in
+python since it imported a bunch of libraries to replace original Python
+parts. For example the imported pandas.lib
+\url{https://github.com/pydata/pandas/blob/master/pandas/lib.pyx} seems
+to replace the python data variables such as integers, nans, infs with C
 variables and make calls to C standard libraries.
 
-here 's an excerpt of the first few lines of parsers.py where the calls
-to wrapped libraries are made:
-
-    % Make sure that atleast 4 lines are below the HR
-    \needspace{4\baselineskip}
-
-    
-        \vspace{6pt}
-        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}4{]}:\hspace{4pt}}\\*
-        \vspace{-2.65\baselineskip}
-        \begin{ColorVerbatim}
-            \vspace{-0.7\baselineskip}
-            \begin{Verbatim}[commandchars=\\\{\}]
-\PY{l+s+sd}{\PYZsq{}\PYZsq{}\PYZsq{} }
-\PY{l+s+sd}{from pandas.core.index import Index, MultiIndex}
-\PY{l+s+sd}{from pandas.core.frame import DataFrame}
-\PY{l+s+sd}{import datetime}
-\PY{l+s+sd}{import pandas.core.common as com}
-\PY{l+s+sd}{from pandas.core.config import get\PYZus{}option}
-\PY{l+s+sd}{from pandas.io.date\PYZus{}converters import generic\PYZus{}parser}
-\PY{l+s+sd}{from pandas.io.common import get\PYZus{}filepath\PYZus{}or\PYZus{}buffer}
-
-\PY{l+s+sd}{from pandas.util.decorators import Appender}
-
-\PY{l+s+sd}{import pandas.lib as lib}
-\PY{l+s+sd}{import pandas.tslib as tslib}
-\PY{l+s+sd}{import pandas.parser as \PYZus{}parser}
-
-\PY{l+s+sd}{\PYZsq{}\PYZsq{}\PYZsq{}}
-\end{Verbatim}
-
-            
-                \vspace{-0.2\baselineskip}
-            
-        \end{ColorVerbatim}
-    
-
-    
-
-        % If the first block is an image, minipage the image.  Else
-        % request a certain amount of space for the input text.
-        \needspace{4\baselineskip}
-        
-        
-
-            % Add document contents.
-            
-                \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-out-prompt}Out\hspace{4pt}{[}4{]}:\hspace{4pt}}\\*
-                \vspace{-2.55\baselineskip}\begin{InvisibleVerbatim}
-                \vspace{-0.5\baselineskip}
-\begin{alltt}'\textbackslash{}nfrom pandas.core.index import Index, MultiIndex;\textbackslash{}nfrom
-pandas.core.frame import DataFrame;\textbackslash{}nimport datetime;\textbackslash{}nimport
-pandas.core.common as com;\textbackslash{}nfrom pandas.core.config import
-get\_option;\textbackslash{}nfrom pandas.io.date\_converters import
-generic\_parser;\textbackslash{}nfrom pandas.io.common import
-get\_filepath\_or\_buffer;\textbackslash{}n\textbackslash{}nfrom pandas.util.decorators import
-Appender;\textbackslash{}n\textbackslash{}nimport pandas.lib as lib;\textbackslash{}nimport pandas.tslib as
-tslib;\textbackslash{}nimport pandas.parser as \_parser;\textbackslash{}n\textbackslash{}n'\end{alltt}
-
-            \end{InvisibleVerbatim}
-            
-        
-    
-\subsection{2.2 What my code does:}\begin{itemize}
+here 's an excerpt of parsers.py where the calls to wrapped libraries
+are made:\begin{verbatim}
+import pandas.lib as lib
+import pandas.tslib as tslib
+import pandas.parser as _parser
+\end{verbatim}\subsection{What my code does:}\begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
 \item
   loop over all the csv files , extracting only relevant column
@@ -781,6 +749,11 @@ tslib;\textbackslash{}nimport pandas.parser as \_parser;\textbackslash{}n\textba
   short and simple
 \item
   fast
+\item
+  extensible - pandas can do subsetting and group by and apply functions
+  very easily, and also handles NA among other things. If you want a
+  different field you can just grab that column by changing the script
+  by one variable.
 \end{itemize}
 
 Cons of this method:
@@ -790,30 +763,49 @@ Cons of this method:
 \item
   most of the code is hidden away from me so if pandas developer has a
   bug somewhere it is harder for me to debug
+\item
+  code compatibility of future pandas version is at the mercy of pandas
+  developers -- I better document exactly the version I am using in case
+  pandas change drastically in the future
 \end{itemize}\subsection{Tests of the code}\begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
 \item
   informative with print statements
 \item
   results agree with first method
-\end{itemize}\section{2.3 Runtime of method 2: \textasciitilde{}3.1 min}user system elapsed 89.872 16.604 185.723
-\part{
-  Method 3 - Approximate approach using FastCSVSample
-}
-\subsection{3.1 Background}The idea is to reduce the amount of data to be analyzed by sampling
+\end{itemize}\section{Runtime of method 2: \textasciitilde{}3.1 min}user system elapsed 89.872 16.604 185.723\section{How to call the code}\begin{quote}
+Rscript
+\end{quote}\part{Method 3 - Approximate approach using FastCSVSample}\subsection{Background}The idea is to reduce the amount of data to be analyzed by sampling
 uniformly across all the csv files using
 https://github.com/duncantl/FastCSVSample
 
-Therefore in the coding process, it is important to ensure the same
-percentages of lines are sampled from each csv file.\part{
-  Machine specification:
-}\begin{itemize}
+Therefore in the coding process, it is important to ensure the (almost)
+same percentages of lines are sampled from each csv file. Since I do not
+usually do sampling as a physics student I would like to see what
+percentage of lines I need to sample in order to get results close to
+the exact method.\subsection{Design considerations:}Ideally the code should:
+
+\begin{itemize}
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  have O(n) run time at most where n is the sampled number of lines
+
+  \begin{itemize}
+  \itemsep1pt\parskip0pt\parsep0pt
+  \item
+    this needs running statistics to be computed\\
+  \end{itemize}
+\end{itemize}
+
+*\subsection{How to run the code:}\begin{quote}
+Rscript
+\end{quote}Or you can download and run the forked R package NotSoFastCSVSample (pun
+intended).\part{Machine specification:}\begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
 \item
   Corsair Vengeance 2x8GB DDR3 1600 MHz Desktop Memory,
 \item
-  Intel(R) Core(TM) i7-4770K CPU @ 3.50GHz,
-  http://ark.intel.com/products/75123
+  Intel(R) Core(TM) i7-4770K CPU @ 3.50GHz, 
 \item
   GeForce GTX 770 SuperClocked
 \item
@@ -824,15 +816,15 @@ percentages of lines are sampled from each csv file.\part{
   Linux Mint 15 Olivia (GNU/Linux 3.8.0-19-generic x86\_64)
 \item
   R version 3.0.2 (2013-09-25) -- ``Frisbee Sailing''
+\item
+  Python v. 2.7.4, numpy v.1.7.1, pandas v.0.10.1
 \end{itemize}
 
 Thanks to an anonymous physicist in Portland who has kindly allowed me
 to use his gaming desktop for the computing of this homework. He helped
 me repair the partition table to my Linux partition and installed a HDD
-for use.\part{
-  Discussion
-}\section{5.1 Relevant packages for R that can also extract specific columns from
-a csv file:}After googling around it seems like there are also packages in R that
+for use.\part{Discussion}\section{Comparison of results of different methods}\section{Comparison of runtime of different methods}\section{Relevant packages for R that can also extract specific columns from a
+csv file:}After googling around it seems like there are also packages in R that
 can read csv files with specified columns. Such as:
 
 \begin{itemize}
@@ -850,31 +842,28 @@ implementation with pandas and numpy. It concerns me that R seems to
 pass by value if I try to use the same approach as my python code to
 append the data frames. The memory usage will definitely be more than my
 python implementation. Or maybe I will just have to adapt the R version
-in a different style than my python code.\section{5.2 What If I can't overcome the temptation of using a compiled
-language:}I would choose C++ over C since C++ has a regex library and better OOP
-features. Those features will save some headache for fetching headers
-that are not exclusive to ArrDelay for extensibility. For example I
-would be able to write C++ template to handle columns of different type
-and use polymorphism.
-
-However, I really do not prefer reinventing the wheel when there are
-already excellent options mentioned above for doing the data analysis.
-\part{
-  Actual code:
-}\section{Method 1: shell script to compute entire frequency table then use R to
-compute statistics}
+in a different style than my python code.\section{What If I can't overcome the temptation of using a compiled language}I would choose C++ over C since C++ has a regex library and more
+complete OOP features. Speed of C and C++ are comparable. Regex and C++
+strings will save some headache for fetching headers that are not
+exclusive to ArrDelay for extensibility. Also, it is easily to extend
+the code for different type of variables. I would be able to write C++
+templates to handle columns of different variable types and use
+polymorphism. (sounds really fun and I will probably spend way too much
+time just optimizing it)\part{Actual code:}\section{Method 1: shell script to compute entire frequency table then use R to
+compute statistics}(I do not like how the cat command messes with the indentation of my
+bash script but here it is)
 
     % Make sure that atleast 4 lines are below the HR
     \needspace{4\baselineskip}
 
     
         \vspace{6pt}
-        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}30{]}:\hspace{4pt}}\\*
+        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}24{]}:\hspace{4pt}}\\*
         \vspace{-2.65\baselineskip}
         \begin{ColorVerbatim}
             \vspace{-0.7\baselineskip}
             \begin{Verbatim}[commandchars=\\\{\}]
-\PY{o}{!}cat ./freq\PYZus{}count.sh
+\PY{o}{!}cat ../freq\PYZus{}count.sh
 \end{Verbatim}
 
             
@@ -1000,12 +989,12 @@ cat freq\_count.txt | sed -E 's/([0-9]+)\textbackslash{}.00/\textbackslash{}1/g'
 
     
         \vspace{6pt}
-        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}2{]}:\hspace{4pt}}\\*
+        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}25{]}:\hspace{4pt}}\\*
         \vspace{-2.65\baselineskip}
         \begin{ColorVerbatim}
             \vspace{-0.7\baselineskip}
             \begin{Verbatim}[commandchars=\\\{\}]
-\PY{o}{!}cat ./method1.R
+\PY{o}{!}cat ../method1.R
 \end{Verbatim}
 
             
@@ -1114,12 +1103,12 @@ save(results1, time.method1, file="results1.rda")
 
     
         \vspace{6pt}
-        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}4{]}:\hspace{4pt}}\\*
+        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}26{]}:\hspace{4pt}}\\*
         \vspace{-2.65\baselineskip}
         \begin{ColorVerbatim}
             \vspace{-0.7\baselineskip}
             \begin{Verbatim}[commandchars=\\\{\}]
-\PY{o}{!}cat ./compute\PYZus{}stat.py
+\PY{o}{!}cat ../compute\PYZus{}stat.py
 \end{Verbatim}
 
             
@@ -1145,7 +1134,7 @@ save(results1, time.method1, file="results1.rda")
 import pandas as pd
 import numpy as np
 
-data\_path = "../HW1\_Stat250\_W14/data/"
+data\_path = "./data/"
 
 \# First read in the data from 1987 to 2007
 year = [ str(i) for i in range(1987,2008) ]
@@ -1205,19 +1194,20 @@ f.close()
             
         
     
-
+In this python code I don't even have to do exception handling since
+Pandas is so smart.
 
     % Make sure that atleast 4 lines are below the HR
     \needspace{4\baselineskip}
 
     
         \vspace{6pt}
-        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}4{]}:\hspace{4pt}}\\*
+        \makebox[0.1\linewidth]{\smaller\hfill\tt\color{nbframe-in-prompt}In\hspace{4pt}{[}27{]}:\hspace{4pt}}\\*
         \vspace{-2.65\baselineskip}
         \begin{ColorVerbatim}
             \vspace{-0.7\baselineskip}
             \begin{Verbatim}[commandchars=\\\{\}]
-\PY{o}{!}cat method2.R
+\PY{o}{!}cat ../method2.R
 \end{Verbatim}
 
             
@@ -1256,9 +1246,13 @@ save(results2, time.method2, file="results2.rda")
             
         
     
-\section{Method 3: FastCSVSample}\section{Miscellaneous : Bonus question}How did Duncan download the data for use in this homework ?
-http://www.transtats.bts.gov/DL\_SelectFields.asp?Table\_ID=236Short answer: download \& start reading from P.333 of
-http://link.springer.com/book/10.1007\%2F978-1-4614-7900-0
+\section{Method 3: (NotSo)FastCSVSample}In this method I forked Duncan's FastCSVSample R package and added some
+R code (which might have made it not so fast).
+
+Since we are sampling from files with quite different sizes, it is
+important that we sample approximately a fixed percentage of lines.\section{Miscellaneous : Bonus question}How did Duncan download the data for use in this homework ?
+\url{http://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236}Short answer: download \& start reading Duncan's new book from P.333 of
+\url{http://link.springer.com/book/10.1007\%2F978-1-4614-7900-0}
 
 Long answer: I could guesstimate how to fill in the dynamic form on that
 website with some scripts and pull the links to those forms for
