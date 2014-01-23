@@ -9,7 +9,7 @@ require(NotSoFastCSVSample)
 run <- function()
 {
   # initialize some options 
-  dataDir <- "/mnt/Winter14Stat250/HW1_Stat250_W14/data/"
+  dataDir <- "./data/"
   samplePercent <- .01
   files <- list.files(path = dataDir , pattern = "*.csv")
 
@@ -50,11 +50,12 @@ run <- function()
       data <- c(data, temp)
     }
   }
-  data
+  results3 <- c(mean(data, na.rm = T), 
+                median(data, na.rm =T), 
+                sd(data, na.rm=T))
 }
 
-time.method3 <- system.time(data <- run())
-result3 <- c(mean(data), median(data), sd(data))
-save(result3, time.method3, file="results3.rda")
+time.method3 <- system.time(results3 <- run())
+save(results3, time.method3, file="results3.rda")
 
 
