@@ -3,8 +3,8 @@ HW1_Stat250_Winter14
 
 benchmarking different approaches to computing statistics of large csv files.
 
-For overall results, in R,
-> load("results.rda") 
+To see overall results, in a R-session, type the following command:
+> load("${PATH TO GIT DIR}/results.rda") 
 
 > RESULTS1
 
@@ -15,6 +15,9 @@ http://nbviewer.ipython.org/github/karenyng/HW1_Stat250_Winter14/blob/master/wri
 Dependency:
 ----------
 * Put data (.csv files NOT .csv.bz files) in a directory ${PATH TO GIT DIRECTORY}/data 
+* R version 3.0.2 (2013-09-25) -- "Frisbee Sailing"
+* Python v. 2.7.4, numpy v.1.7.1, pandas v.0.10.1  
+* R package included in this repository -- NotSoFastCSVSample 
 
 To run:
 -----
@@ -47,14 +50,12 @@ http://www.cpubenchmark.net/cpu.php?cpu=Intel+Core+i7-4770K+%40+3.50GHz&id=1919
   * Samsung 840 Pro 256 GB SSD
   * Motherboard: Asus Z87-Deluxe DDR3 1600 LGA 1150 
   * Linux Mint 15 Olivia (GNU/Linux 3.8.0-19-generic x86_64)
-  * R version 3.0.2 (2013-09-25) -- "Frisbee Sailing"
-  * Python v. 2.7.4, numpy v.1.7.1, pandas v.0.10.1  
 
 Wallclock time 
 -----
 * Method 1: ~5.4 mins 
 * Method 2: ~3.1 mins
-* Method 2: ~4.7 mins
+* Method 3: ~4.7 mins
 
 Results
 ----

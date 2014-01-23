@@ -38,6 +38,7 @@ method3 <- "forked Duncan's FastCSVSample package and added R code to it
             hard coded sampling options..."
 
 method2.dependency <- "Python v. 2.7.4, numpy v.1.7.1, pandas v.0.10.1"
+method3.dependency <- "forked R package NotSoFastCSVSample"
 author <- '(Karen) Yin-Yee Ng <karenyng@ucdavis.edu>'
 
 RESULTS <- list(method1 = method1, time.method1 = time.method1, results1 = results1, 
@@ -49,6 +50,7 @@ RESULTS <- list(method1 = method1, time.method1 = time.method1, results1 = resul
                  run.command2 = shell.command2, code2 = code2,
                  run.command3 = shell.command3, code2 = code3,
                  method2.dependency = method2.dependency,
+                 method3.dependency = method3.dependency,
                  machine.specs = machine.specs, author = author) 
 
 save(RESULTS, file="results.rda")
