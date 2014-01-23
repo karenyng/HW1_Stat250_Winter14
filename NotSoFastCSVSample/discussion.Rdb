@@ -1,0 +1,695 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:sh="http://www.shell.org">
+
+  <!-- relational database
+       parallel problems with SQLite3
+        MySQL, Postgres, MonetDB 
+
+     FWF sampling directly
+
+     head -n num file | tail-n 1
+
+     C Perl Python
+
+     Parallel computing
+    -->
+
+
+<articleinfo>
+<title>Sampling Large CSV Files</title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+
+<para>
+This case study is quite similar to Michael Kane's.  The data are the
+same - airline delays.  Some of the material overlaps - shell, SQL,
+parallel computing.  We also cover Python, C and attempt to explain
+more about the reasoning behind some of the computations and contrast
+different approaches.  The tone is different, the focus different, but
+the material not entirely dissimilar.
+The details of the SQL are different, focusing on non-SQLite3
+and on Postrgres instead to achieve parallelism.
+We discuss distributing data to parallel nodes.
+</para>
+
+
+<section>
+<title>The Problem</title>
+
+<para>
+We have a problem that is quite simple to state.  We have several CSV
+files, each of which contains a reasonably large number of
+observations/rows.  We want to create a simple random sample of the
+observations.  How do we do this efficiently?
+</para>
+
+<para>							       <!--  sample across all or within each file. -->
+One approach is to read each file in entirety into <r/> using 
+<r:func>read.csv</r:func> and then take a subset
+of its rows.
+This involves reading the entire file into <r/>
+which may be slow and certainly involves more processing
+than is necessary. We will be converting the values in each row
+whether we will keep that row or not.
+Furthermore, we will consume a great deal more memory to store
+all of the unneeded lines and observations in the data frame.
+</para>
+
+<para>
+Another approach is to extract just the lines we want 
+and then use a text connection to represent them
+as bytes and use this with <r:func>read.csv</r:func>.
+To do this, we need to get the lines we want.
+</para>
+
+<para>
+If we had a single file, we could determine how many observations it
+contained and then sample line numbers between the first observation
+and the maximum.  We can use <r:func>readLines</r:func> to determine
+the number of lines. Unfortunately, that involves reading all of the
+data into <r/>, admittedly as lines and not individual rows of data.
+We want to avoid this as we will have potentially many hundred
+megabytes of data in memory just to compute the number of lines.  So
+we want a different approach.  We could read blocks of lines, count
+the number in a block and throw it away.  This will be slow in <r/>
+and still involves a lot of memory as we want the block size (number
+of lines in each block) to be large to reduce the number of
+iterations of the loop.
+Instead, however, we can use the shell command <sh:exec>wc</sh:exec>, e.g.
+<r:code>
+system("wc -l 1998.csv", intern = TRUE) 
+</r:code>
+We then extract the count of the line numbers from the resulting string.
+</para>
+
+<para>
+Since we have multiple files, we can have one call to
+<sh:exec>wc</sh:exec> that processes all of the files.
+We could do this with
+<r:code>
+files = list.files(dir, pattern = "^[12].*\\.csv$", full.names = TRUE)
+sprintf("wc -l %s", paste(files, collapse = " "))
+</r:code>
+One problem we can run into is that the string containing the 
+shell command is too long.
+We could change the working directory temporarily and the specify
+the names locally within that directory:
+<r:code>
+files = list.files(dir, pattern = "^[12].*\\.csv$", full.names = FALSE)
+cmd = sprintf("wc -l %s", paste(files, collapse = " "))
+old = setwd(dir)
+system(cmd, intern = TRUE)
+setwd(old)
+</r:code>
+If we have a lot of files, this string may still be too long.
+In this case, we might have the shell command read the inputs from
+a file rather than the command-line arguments, similar 
+to the <sh:flag>T</sh:flag> flag for the <sh:exec>tar</sh:exec> command.
+If the command supports this, we can use <r/> to write the names of the files
+to a file and then compose the relevant shell command to run the command.
+Unfortunately, <sh:exec>wc</sh:exec> doesn't support this option.
+Another approach is to use <sh:exec>xargs</sh:exec> to run the command.
+We list the files via the command <sh:exec>ls</sh:exec>
+and feed the output containing the file names to <sh:exec>xargs</sh:exec>
+which reads these in blocks and passes them in blocks to calls to
+<sh:exec>wc</sh:exec>
+We do this with
+<sh:code>
+ls  ~/Data/Airline/Airlines/[21]*.csv | xargs wc -l
+</sh:code>
+</para>
+
+<para>
+Now that we have called <sh:exec>wc</sh:exec> somehow via the <r:func>system</r:func>
+function in <r/>, we get back the results as a character vector containing the lines of output.
+We then have to extract the number of lines. The text is something similar to 
+<r:output><![CDATA[
+ [1] " 1311827 /Users/duncan/Data/Airline/Airlines/1987.csv"
+ [2] " 5202097 /Users/duncan/Data/Airline/Airlines/1988.csv"
+ [3] " 5041201 /Users/duncan/Data/Airline/Airlines/1989.csv"
+   ...
+[23] " 123534991 total"                                     
+]]></r:output>
+We need to extract the number and the name of the file.
+We can use the file names as the names of the resulting integer vector.
+We can use regular expressions or <r:func>strsplit</r:func>
+to extract the count and the file name from each line:
+<r:code>
+els = strsplit(txt, " ")
+structure(as.integer(sapply(els, `[`, 2)),
+           names = sapply(els, `[`, 3))
+</r:code>
+Note that the first element in each of <r:var>els</r:var> is
+the empty string "" that corresponds to the
+space at the start of each line.
+</para>
+<para>
+We have split on a single space. However, there may be more
+than one space at the beginning of the line.
+<sh:exec>wc</sh:exec> will use extra spaces or a TAB character
+to align the output appropriately. As a result, our function will fail
+to get the correct elements. Instead, we need to split
+based on one or more spaces, i.e. the regular expression
+<rx:pattern>" +"</rx:pattern>.
+</para>
+<para>
+We could get the same integer vector with regular expressions via
+<r:code>
+structure(as.integer(gsub(" ([0-9]+) .*", "\\1", txt)),
+          names = gsub(" [0-9]+ (.*)", "\\1", txt))
+</r:code>
+Either approach works well for our situation.
+We only have 22 files and hence 22 lines to process. 
+Using two <r:func>sapply</r:func> loops over the
+result of <r:func>strsplit</r:func> is very fast.
+If the number of lines was very large, this might be 
+an issue and the two calls to <r:func>gsub</r:func>
+may be more efficient.
+Given the issue with the formatting of the output
+of <sh:exec>wc</sh:exec> with white space, the use of
+regular expressions may be more robust.
+</para>
+<para>
+Let's put this into a function:
+<r:function>
+extractCounts = 
+function(txt)
+{
+  structure(as.integer(gsub(" ([0-9]+) .*", "\\1", txt)),
+            names = gsub(" [0-9]+ (.*)", "\\1", txt))
+}
+</r:function>
+We might want to add an argument that removes
+the final line that gives the totals for all files.
+</para>
+
+<para>
+We'll also define a higher level function
+to call <sh:exec>wc</sh:exec> and then 
+use <r:func>extractCounts</r:func>.
+<r:function><![CDATA[
+lineCount = 
+function(files)
+{
+  cmd = sprintf("wc -l %s", paste(dQuote(files), collapse = " "))
+  lines = system(cmd, intern = TRUE)
+  extractCounts(lines)
+}
+]]></r:function>
+Note that we quote each file name. This 
+ensures that the shell  sees each name as a single argument.
+This allows the file names to contain spaces which,
+without the quote, would cause the shell to see the
+name as two or more separate words.
+For example, if a file was named  <file>with two spaces</file>,
+the command <sh:expr>wc -l with two spaces</sh:expr> would 
+see three file names. 
+We use <r:func>dQuote</r:func> rather than <r:func>sQuote</r:func>
+so that shell can expand certain terms such
+as environment variables 
+However, if we call this function as
+<r:expr eval="false">lineCount("*.csv")</r:expr>
+this will result in the shell command
+<sh:code eval="false">
+wc -l "*.csv"
+</sh:code>
+This will treat the string <file>*.csv</file> as the name of the file
+rather than using globbing to match all the files with the extension csv.
+So we might want to control whether the files are quoted or not,
+allowing this to be specified via a parameter.
+We might also want to leave it to the caller to quote them if necessary.
+These are decisions to consider.
+We might add a <r:arg>quote</r:arg> parameter
+to allow the caller to control whether the values are quoted.
+<r:function><![CDATA[
+lineCount = 
+function(files, quote = any(grepl("[[:space:]]", files)))
+{
+  if(quote)
+    files = dQuote(files)
+  cmd = sprintf("wc -l %s", paste(files, collapse = " "))
+  lines = system(cmd, intern = TRUE)
+  extractCounts(lines)
+}
+]]></r:function>
+<note><para>dQuote will use smart quotes. We need to define our own
+and/or change R's version to have an option</para>
+<invisible>
+<r:function><![CDATA[
+dQuote = function(x, fancyQuotes = FALSE) sprintf('"%s"', x)
+]]></r:function>
+</invisible>
+</note>
+So we can call this as 
+<r:code>
+lineCount("*.csv")
+lineCount("my file.csv")
+</r:code>
+</para>
+<para>
+This function is fine for a small number of reasonably
+short file names/paths. As we discussed above, for
+longer collections of file names, we may have to use
+<sh:exec>xargs</sh:exec>.  We can change our function
+to do this.  We may exclusively use <sh:cmd>xargs</sh:cmd>
+or conditionally use it if the number of characters in the
+file names is large or if there are wildcards in the file
+names.
+For wildcards, we can implement the function as
+<r:function><![CDATA[
+xlineCount = 
+function(files)
+{
+  cmd = sprintf("ls %s | xargs wc -l", files)
+  lines = system(cmd, intern = TRUE)
+  extractCounts(lines)
+}
+]]></r:function>
+Note that the final two expressions are the same
+as those in our earlier <r:func>lineCount</r:func> function.
+We should consolidate the two functions and share that code.
+</para>
+<para>
+When we have many, many files we cannot put them on the command
+line for the shell, whether we use <sh:cmd>xargs</sh:cmd> or not.
+We have to write these to a file and then use the
+shell command <sh:cmd>cat</sh:cmd> to pass them line by line
+to <sh:cmd>xargs</sh:cmd>.
+How many arguments can we pass and how long is the maximum shell
+command?  This depends on the shell and how it was configured.
+We can determine this by calling <sh:expr>getconf ARG_MAX</sh:expr>
+on a <unix/> system. 
+On OS X, this gives me 262144 and on a <linux/> machine, I get
+131072, i.e. half the size for OS X.
+So we could test if the number of characters in all of the files
+is close to this and if it is, we would use <sh:cmd>xargs</sh:cmd>. 
+Similarly, if there is a wildcard in any of the file names, we
+use <sh:cmd>xargs</sh:cmd>.
+So we can test this with
+<finish>wild cards won't work here. We have to expand
+them. We could use list.files</finish>
+<r:code>
+ if(any(grepl("\\*|\\[", files)) || 
+      sum(nchar(files)) > ARG_MAX - 20) {
+    tmp = tempfile()
+    cat(files, file = tmp, sep = "\n")
+    cmd = sprintf("cat %s | xargs wc -l", tmp)
+  }
+</r:code>
+
+<finish>
+Make the function more flexible or have two separate functions?
+Better to have one and have parameters
+</finish>
+</para>
+
+
+<para>
+So we can call this with
+<r:code>
+numLines = lineCount("~/Data/Airline/Airlines/[12]*.csv")
+</r:code>
+and we now have the number of lines for each file.
+This is the first step for sampling.
+</para>
+
+<para>
+We can sample in either of two ways.  One is to sample values from 1
+to the total number of observations across all files, i.e. available
+in <r:expr>numLines["total"]</r:expr> or
+<r:expr>numLines[length(numLines)]</r:expr>. This is the regular
+way to sample so that each observation is equally likely to be included
+in the sample.
+An alternative approach is to perform a two step sampling procedure.
+We  sample the  number of observations to sample from each of the files,
+using their number of observations to specify the probability.
+Then for each file, we sample the corresponding many lines from each file.
+This uses a multinomial distribution to determine the number of
+observations from each file and then a simple random sample within
+each file.  Are these two equivalent in probability terms?
+</para>
+<para>
+Let's look at the two-step approach first.
+To get the number of observations we want to sample from each file,
+we sample from a multinomial distribution.
+The number of groups in the multinomial is the number of files
+we have, i.e., <r:expr>length(numLines)</r:expr>.
+The probabilities for the different groups are given by
+<r:code>
+ p = numLines[- length(numLines) ]
+ p = p/sum(p)
+</r:code>
+We sample from the multinomial with 
+<r:code>
+N = 2e6
+numPerFile = rmultinom(1, N, p)
+</r:code>
+We take a look these counts to see if they are  what we expect:
+<r:code>
+D = N * p - numPerFile
+range(D)
+plot(D)
+</r:code>
+So these look appropriate.
+</para>
+
+
+<para>
+With these numbers, we can now sample each of the files.
+We need to know the total number of observations in each file
+to be able to determine which lines to sample.
+Note that the names of the elements of <r:var>numPerFile</r:var> are
+the full file names.  We can ensure that these are in the same
+order as <r:var>numLines</r:var> or we can use the names of the file
+to index both vectors.
+We can either determine which lines to sample in each file
+before we sample any of the files,  or we can determine
+the line numbers and sample in on step for each file.
+It saves memory to do the latter.
+So we can sample with
+<r:code>
+lapply(names(numPerFile),
+        function(f)
+          sampleCSV(f, sample(2:numLines[f], numPerFile[f])))
+</r:code>
+assuming there is a function <r:func>sampleCSV</r:func> that
+performs the actual sampling. We'll develop that very shortly.
+</para>
+<para>
+Why did we use <r:expr>2:numLines[f]</r:expr>, i.e. 2 rather than 1?
+This is because the first line in each file is the header
+giving the names of the columns/variables. We don't want to sample
+those. 
+We should have taken this into account when determine 
+<r:var>numLines</r:var> and the probabilities <r:var>p</r:var>.
+This is one of the reasons why it is good to put code into functions
+rather than as a long script. When we identify an issue that we
+hadn't considered previously, we should re-run the computations
+and it is easiest to do this by changing the functions and 
+calling them again.  Also, it is much easier to test the functions
+on small inputs that exhibit corner cases, e.g. just one observation,
+with or without a header.
+</para>
+
+<para>
+Rather than using the multinomial approach, we can
+sample uniformly from the indices of all of the 
+observations across the files.
+We can do this easily with
+<r:code>
+idx = sample(1:numLines["total"], N)
+</r:code>
+Note that we are creating a very large vector with
+length <r:expr>numLines["total"]</r:expr>.
+This occupies a lot of memory.
+This is simpler than the  multinomial,
+but from here things become slightly more complicated.
+Firstly, this includes the header lines.
+Secondly, once we have the sampled indices,
+we now have to determine which rows in which file
+each corresponds to. So we have to do the reverse of the
+multinomial sampling procedure. 
+</para>
+<para>
+We can handle the issue of the headers by removing the
+numbers corresponding to the first line of each file.
+We know what these are from the <r:var>numLines</r:var>.
+We can compute the positions with 
+<r:code>
+headerLines = cumsum(c(1, numLines[-length(numLines)]))
+</r:code>
+To convince ourselves this is correct, let's consider an example with
+3 files with 5, 4, and 7 lines.  The first header is at line 1, the
+second is at line 6, and then the final one is at line 11.  Indeed, it
+is a good idea to create simple files with which we can verify our
+calculations and code.
+</para>
+<para>
+So now we can remove these indices from our complete
+set of indices
+<r:code>
+idx = 1:numLines["total"]
+idx = idx[-headerLines]
+</r:code>
+Note that we now have two very large vectors in memory
+at the same time.
+One will be garbage collected as it is no longer needed
+since we reassigned the modified vector to <r:var>lineIndices</r:var>.
+Nevertheless, this does require  more memory.
+</para>
+<!-- Cleanup the variable names and make it clear what we are doing. -->
+<para>
+Again, we sample from <r:var>idx</r:var> with
+<r:code>
+idx = sample(idx, N)
+</r:code>
+to get the subset of the observations that we want in our actual sample.
+Now we can determine to which lines in which files these indices correspond.
+We can do this by creating a group identifier for the different lines
+in a given file. 
+The number in each group is contained in the <r:var>numLines</r:var> after we remove
+the count for the header in each file
+<r:code>
+g = rep(length(numLine), numLine - 1)
+</r:code>
+FIX this all up and make  it clearer, the off by 1 for the header!
+</para>
+
+
+
+<para>
+We now know the lines we want to sample in each of the CSV files.
+We can use our apply function above that calls the <r:func>sampleCSV</r:func>
+function.  So we now focus our attention on implementing that function.
+It takes the name of the file from which to sample and the indices of the rows to sample.
+We will assume that these row indices are independent of any header line. So we
+will allow the caller to specify if there is a header, similar to <r:func>read.csv</r:func>.
+It is convenient to allow the caller to specify the rows to sample, but to have a default for this.
+<r:function><![CDATA[
+sampleCSV = 
+function(filename, n, rows = sample(seq(if(header) 2 else 1, numLines), n), 
+          header = TRUE, numLines = getNumLines(filename))
+{
+
+}
+]]></r:function>
+While we may typically not specify the value for <r:arg>rows</r:arg>
+in a call to this function, it is useful to be able to specify it.
+One reason is that we may want to explore different implementations
+of the function and we want to verify that they get the same results.
+For this, we want to be able to remove the randomness from the calls
+to the functions.
+</para>
+<para>
+What approaches can we use to sample the relevant lines?
+One approach is to read all the lines and then subset the lines of interest,
+e.g.
+<r:code>
+ txt = readLines(filename)
+ txt[rows]
+</r:code>
+This consumes a lot of memory and what we talked about avoiding at the beginning of this project.
+</para>
+<para>
+Another approach is to use a connection and to read one line at a time.
+We increment a counter and when that matches the next row we want to sample, we
+store that line; otherwise we discard the line. 
+The key thing here is that with the connection, we will continue to read from
+where we previously left off.
+We could do this with  something like the following code
+<r:code><![CDATA[
+lineNum = 0
+ctr = 1
+sampled = character(length(rows))
+maxLineNum = max(rows)
+
+while(lineNum <= maxLineNum) {
+  line = readLines(con, n = 1)
+  lineNum = lineNum + 1
+  if(lineNum %in% rows) {
+    sampled[ctr] = line
+    ctr = ctr + 1
+  }
+}
+]]></r:code>
+Note that we end the loop not when have reached the end of the file,
+but  when we have read the final line we need.
+This saves processing unnecessary lines.
+Note also that we know how many elements will be in the result
+so we preallocate the vector <r:var>sampled</r:var>.
+We haven't included the code to create/open the connection
+to the file and also to read the header line if, it is present.
+We'll deal with these details when we evaluate if we want
+to pursue this approach.
+</para>
+<para>
+How fast will this code be?  Well, we can measure how long it takes on one of our
+files.  We can also just think about how <r/> interprets this code.
+Remember that we are executing the expressions in the body of the loop
+for each line of the file.  This is  quite  expensive. As always in <r/>, we want to vectorize
+this computation if possible. So how can we do that?
+What expressions can we vectorize or do we have to reorganize the computational approach entirely?
+The most obvious, and perhaps only, expression we can vectorize is the call to
+<r:func>readLines</r:func>.  Instead of reading one line at a time, we could
+read many lines.  We can read all of the lines, but that brings us back to the memory
+issue we wanted to avoid. So we can chose a number of lines somewhere between 1 and the total
+number.   We could pick a fixed number of lines, say B,  to read in each iteration.
+Then we would extract any rows in that block that correspond to lines we want to sample.
+</para>
+<para>
+A different approach  than using a fixed block size is to simply read as many rows
+as we need to get the next line we want to sample. Suppose we
+want to sample the 10th and the 37th lines.  
+We would read the first 10 lines  and store the 10th
+and discard the others.  Next, we would read 27 more lines
+and again, store the final line and discard the rest.
+We can adapt our loop to implement this something like
+<r:code>
+ctr = 1
+sampled = character(length(rows))
+rows = sort(rows)
+diffs = c(rows[1], diff(rows))
+
+for(i in diffs) {
+   lines = readLines(con,  i)
+   sampled[ctr] = lines[i]
+   ctr = ctr + 1
+}
+</r:code>
+The variable <r:var>diffs</r:var> contains the number of lines between
+successive lines we want to sample. Each element of this vector tells
+us how many lines to read to get the next line we want.
+</para>
+<para>
+With the code above, how many iterations of our loop will we have?
+Compare this to the <r:keyword>while</r:keyword> loop earlier.
+What is the difference in the number of iterations? Which is faster?
+There will be fewer iterations in the second approach. In fact,
+as many iterations as there are lines to sample.
+We did have to sort the indices of the rows we want to sample so that
+they are in the correct order that we will encounter them in the file.
+(We also want to randomize the results after we sample them.)
+We are however consuming potentially larger amounts of memory.
+We are reading in a large block of lines, taking the last of these
+and then throwing that block of memory away.
+Each time we read a new block of lines, we use new memory.  It will
+be garbage collected for us, but we have no control over whether it will
+be reused to store a subsequent block. Ideally we would like to reuse
+the same block of memory for each iteration. How big a difference will
+this make?
+</para>
+
+
+
+<para>
+So let's consider how we might read one line at a time efficiently.
+This is what the shell tools typically do and accordingly
+have a low memory overhead and are fast.
+We have seen that to do this directly with <r/> code will
+involve a loop that iterates over each line and this will be slow.
+So can we use a shell  tool?
+One approach to get a particular line from a file is
+to use a combination of the shell tools <sh:cmd>head</sh:cmd>
+and <sh:cmd>tail</sh:cmd>.
+For example, to get the 30th line of a file, we could use
+<sh:code>
+head -n 30 filename | tail -n 1
+</sh:code>
+The call to <sh:cmd>head</sh:cmd> writes out the first 30 lines
+and we redirect these to be the input to <sh:cmd>tail</sh:cmd>.
+We instruct it to output only the last line.
+</para>
+<para>
+To use the combination of <sh:cmd>head</sh:cmd> and
+<sh:cmd>tail</sh:cmd> to sample multiple lines, we have to run a
+separate command for each of the sample lines we want. So this will
+involve a loop in <r/>.  Furthermore, each call will start from the
+beginning of the file and output all of the lines as input to
+<sh:cmd>tail</sh:cmd>.  As a result, we are rereading and reprocessing
+the same lines many, many times.  
+</para>
+
+<para>
+It would be better if we could use one process  or call to
+extract all of the lines we want. Suppose there was a shell
+command named  <sh:cmd>showLines</sh:cmd> that we could
+call with the name of a file and the indices of the lines we want,
+e.g.
+<sh:code>
+showLines  filename  4 10  97 43
+</sh:code>
+One problem with this is that we will run into the same problem with 
+a long command line when we specify all of the rows we want to sample. 
+So we would have to arrange to use <sh:cmd>xargs</sh:cmd> to process
+these or perhaps write them to a file and have <sh:cmd>showLines</sh:cmd>
+read them from that.  Alternatively, <sh:cmd>showLines</sh:cmd>
+could read the line numbers we want to sample from its standard input.
+</para>
+
+
+<para>
+We can write an implementation of <sh:cmd>showLines</sh:cmd>.
+We can write this in any language we want.
+It will be a lot simpler if we insist that the indices of
+the rows  to sample are in increasing order, i.e. sorted.
+</para>
+
+
+<para>
+If <sh:cmd>showLines</sh:cmd> already existed, we would use
+it and write the indices of the lines to a file.
+However, since it didn't exist and we wrote it as <c/> program,
+we can adapt the <c/> code to be both a shell command
+and also a routine called from <r/>. Instead of passing the
+indices of the rows to the code via standard input or
+a separate file, we can pass an <r/> vector containing
+the indices directly.  This should be both simpler and faster.
+</para>
+
+<para>
+To make the <c/> code  accessible from <r/>,
+we have to restructure it a little.
+</para>
+
+
+<para>
+Using the sampler C code as a shell command.
+It would be be nice to do this as then we could 
+use it as a stage/component in a shell pipe.
+Problem is that we have to pass which rows to
+sample. We can't put these as command line arguments
+because there are too many of them, in most cases.
+The shell has a limit on the number of arguments,
+or the total size of the arguments.
+</para>
+
+</section>
+<section>
+
+<para>
+What if we had the data in a single file. Could we parallelize access?
+We could have different workers process different parts of the file.
+But how do we know where each line starts.
+How can we jump to a specific line?
+If we could do this, we wouldn't have to read each line!
+We could just extract the lines we want to sample directly.
+</para>
+
+<para>
+Fixed width format would allow us to jump directly to the 
+lines of interest.
+
+</para>
+
+
+
+</section>
+</article>

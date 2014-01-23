@@ -3,10 +3,13 @@ HW1_Stat250_Winter14
 
 benchmarking different approaches to computing statistics of large csv files.
 
+For overall results, in R,
+> load "results.rda" 
+> RESULTS1
+
 For details see:
 http://nbviewer.ipython.org/github/karenyng/HW1_Stat250_Winter14/blob/master/writeup/hw1.ipynb?create=1
 
-Or in R, load "results.rda" 
 
 Dependency:
 ----------
@@ -16,6 +19,7 @@ To run:
 -----
 * Method 1 : $Rscript ${PATH TO GIT DIRECTORY}/method1.R 
 * Method 2 : $Rscript ${PATH TO GIT DIRECTORY}/method2.R 
+* Method 3 : $Rscript ${PATH TO GIT DIRECTORY}/method3.R 
 
 
 Returns:
@@ -29,6 +33,9 @@ Method 1:
 Method 2: 
 * results2.rda
 * results2.txt
+
+Method 3: 
+* result3.rda
 
 Machine specification: 
 ---------------------
@@ -60,4 +67,7 @@ median = 0.0
 
 std. dev. = 31.5563262623
 
+Method 3: 
 
+agrees with method 1 and 2 up to two sign fig , sampling only 1% of all the
+lines
