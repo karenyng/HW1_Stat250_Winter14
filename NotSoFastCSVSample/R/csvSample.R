@@ -73,15 +73,19 @@ function(colNum, ans, colName)
 {
   splitAns <- strsplit(ans, ",")
   if (colName == '\"ARR_DELAY\"') 
+  {
     splitAns <- sapply(splitAns, "[", c(colNum+2L)) 
+  }
   else if(colName == "ArrDelay")
+  {
     splitAns <- sapply(splitAns, "[", c(colNum)) 
+    splitAns <- gsub("\"([0-9]+)\"","\\1", splitAns) 
+    # replace all the blank entries with NaN
+    splitAns <- gsub("^$","NaN", splitAns) 
+  } 
   
-  # replace all the invalid entries with NaN
-  splitAns <- gsub("^$","NaN", splitAns) 
-  splitAns <- gsub("\"([0-9]+)\"","\\1", splitAns) 
-
-  splitAns <- as.integer(splitAns)
-  #splitAns <- as.data.frame(splitAns)
+  # trying to make R stop complaining about NAs introduced by coercion
+  splitAns <- as.data.frame(splitAns)
   splitAns <- na.omit(splitAns)
+  splitAns <- sapply(splitAns, as.integer)
 }

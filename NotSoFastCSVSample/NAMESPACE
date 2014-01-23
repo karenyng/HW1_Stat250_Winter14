@@ -1,2 +1,3 @@
 useDynLib(FastCSVSample)
 export(csvSample)
+export(getNumLines)
