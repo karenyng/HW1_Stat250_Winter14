@@ -1,7 +1,7 @@
 HW1_Stat250_Winter14
 ====================
 
-benchmarking different approaches to computing statistics of large csv files.
+benchmarking different approaches for computing statistics of large csv files.
 
 For details see:
 http://nbviewer.ipython.org/github/karenyng/HW1_Stat250_Winter14/blob/master/writeup/hw1.ipynb?create=1

@@ -15,8 +15,8 @@
 }
 \usage{
 csvSample(file, n, rows = sample(1:numRows, n), numRows =
-	  getNumLines(file), randomize = FALSE, header = TRUE, colName =
-	  NULL )
+	  getNumLines(file), randomize = FALSE, header = TRUE, 
+	  colName = NULL)
 }
 \arguments{
   \item{file}{the name of the local file containing the

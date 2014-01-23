@@ -56,6 +56,8 @@ run <- function(){
   # after reading Jook Cook 's entry on computation of std. dev
   # I decide to go with the (two-pass) direct method  because this can be 
   # written entirely in vectorized form
+  # ah the line wrapping is not at 80 characters but i don't have 
+  # time to wrap it ... ... ... 
   std.dev <- sqrt(sum(DF[['freq']] * (DF[['delay']] - t.mean) ^ 2 / (w.total-1))) 
   results1 <- c(t.mean, t.median, std.dev)
   #print(results)

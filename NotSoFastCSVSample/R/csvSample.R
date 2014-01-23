@@ -37,7 +37,8 @@ getColNum =
 function(file, colName)
 { 
   colNum <- -99L
-  csvHeader <- system(sprintf('head -1 %s | tr "," "\n"', file), intern = TRUE)
+  csvHeader <- system(sprintf('head -1 %s | tr "," "\n"', file), 
+                      intern = TRUE)
   for(i in 1:length(csvHeader))
   {
     if(csvHeader[[i]] == colName)
@@ -75,17 +76,18 @@ function(colNum, ans, colName)
   if (colName == '\"ARR_DELAY\"') 
   {
     splitAns <- sapply(splitAns, "[", c(colNum+2L)) 
+    splitAns <- gsub("*NA*","NaN", splitAns) 
   }
   else if(colName == "ArrDelay")
   {
     splitAns <- sapply(splitAns, "[", c(colNum)) 
-    splitAns <- gsub("\"([0-9]+)\"","\\1", splitAns) 
+    splitAns <- gsub("\"([-0-9]+)\"","\\1", splitAns) 
     # replace all the blank entries with NaN
     splitAns <- gsub("^$","NaN", splitAns) 
   } 
   
   # trying to make R stop complaining about NAs introduced by coercion
-  splitAns <- as.data.frame(splitAns)
-  splitAns <- na.omit(splitAns)
+  #splitAns <- as.data.frame(splitAns)
+  #splitAns <- na.omit(splitAns)
   splitAns <- sapply(splitAns, as.integer)
 }
