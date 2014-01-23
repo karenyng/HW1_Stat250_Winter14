@@ -54,6 +54,7 @@ Wallclock time
 -----
 * Method 1: ~5.4 mins 
 * Method 2: ~3.1 mins
+* Method 2: ~4.7 mins
 
 Results
 ----
