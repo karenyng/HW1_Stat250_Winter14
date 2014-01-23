@@ -4,7 +4,8 @@ HW1_Stat250_Winter14
 benchmarking different approaches to computing statistics of large csv files.
 
 For overall results, in R,
-> load "results.rda" 
+> load("results.rda") 
+
 > RESULTS1
 
 For details see:
