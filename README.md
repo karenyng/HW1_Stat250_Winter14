@@ -47,6 +47,7 @@ Machine specification:
   * Intel(R) Core(TM) i7-4770K CPU @ 3.50GHz,
 http://www.cpubenchmark.net/cpu.php?cpu=Intel+Core+i7-4770K+%40+3.50GHz&id=1919
   * GeForce GTX 770 SuperClocked
+  * Western Digital 2TB HDD (Intellipower RPM 5200 - 7200)
   * Samsung 840 Pro 256 GB SSD
   * Motherboard: Asus Z87-Deluxe DDR3 1600 LGA 1150 
   * Linux Mint 15 Olivia (GNU/Linux 3.8.0-19-generic x86_64)
